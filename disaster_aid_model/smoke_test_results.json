@@ -1,0 +1,30 @@
+{
+  "timestamp": "2026-09-11T03:36:20Z",
+  "device_name": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "torch_version": "2.13.0+cu130",
+  "cuda_version": "13.0",
+  "model_architecture": "YOLOv8n",
+  "config": {
+    "epochs": 1,
+    "batch": 2,
+    "imgsz": 640,
+    "workers": 2,
+    "device": 0
+  },
+  "initial_gpu": {
+    "gpu_used_mb": 15.0,
+    "gpu_total_mb": 6141.0,
+    "gpu_util_pct": 0.0
+  },
+  "peak_vram_torch_allocated_mb": 395.15576171875,
+  "peak_vram_torch_reserved_mb": 464.0,
+  "peak_gpu_nvidiasmi_mb": 632.0,
+  "max_gpu_utilization_pct": 34.0,
+  "forward_backward_pass_succeeded": true,
+  "validation_succeeded": true,
+  "checkpoint_generated": true,
+  "checkpoint_path": "/home/adi/workspace/hackathons/sih-26/disaster_aid_model/runs/smoke_test/phase_0_8_yolov8n/weights/best.pt",
+  "checkpoint_size_mb": 5.93,
+  "training_time_seconds": 199.54,
+  "status": "PASS"
+}

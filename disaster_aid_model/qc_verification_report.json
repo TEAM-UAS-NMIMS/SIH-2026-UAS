@@ -1,0 +1,181 @@
+{
+  "dataset": "VisDrone-Person",
+  "status": "PASSED",
+  "errors": [],
+  "splits": {
+    "train": {
+      "image_count": 6471,
+      "label_count": 6471,
+      "missing_labels": 0,
+      "missing_images": 0,
+      "total_boxes_verified": 106393,
+      "invalid_class_ids": 0,
+      "out_of_bounds_coords": 0,
+      "degenerate_boxes": 0,
+      "verified_sample_stems": [
+        {
+          "stem": "9999972_00000_d_0000037",
+          "image_size": [
+            1916,
+            1078
+          ],
+          "box_count": 1,
+          "sample_box": [
+            "0",
+            "0.650574",
+            "0.015306",
+            "0.005741",
+            "0.019481"
+          ]
+        },
+        {
+          "stem": "0000141_00251_d_0000009",
+          "image_size": [
+            1920,
+            1080
+          ],
+          "box_count": 108,
+          "sample_box": [
+            "0",
+            "0.255469",
+            "0.302778",
+            "0.004687",
+            "0.024074"
+          ]
+        },
+        {
+          "stem": "9999962_00000_d_0000106",
+          "image_size": [
+            1400,
+            1050
+          ],
+          "box_count": 9,
+          "sample_box": [
+            "0",
+            "0.158214",
+            "0.582857",
+            "0.019286",
+            "0.032381"
+          ]
+        },
+        {
+          "stem": "9999962_00000_d_0000105",
+          "image_size": [
+            1400,
+            1050
+          ],
+          "box_count": 3,
+          "sample_box": [
+            "0",
+            "0.715357",
+            "0.460476",
+            "0.026429",
+            "0.042857"
+          ]
+        },
+        {
+          "stem": "9999953_00000_d_0000064",
+          "image_size": [
+            1400,
+            788
+          ],
+          "box_count": 1,
+          "sample_box": [
+            "0",
+            "0.583214",
+            "0.090102",
+            "0.005000",
+            "0.010152"
+          ]
+        }
+      ]
+    },
+    "val": {
+      "image_count": 548,
+      "label_count": 548,
+      "missing_labels": 0,
+      "missing_images": 0,
+      "total_boxes_verified": 13969,
+      "invalid_class_ids": 0,
+      "out_of_bounds_coords": 0,
+      "degenerate_boxes": 0,
+      "verified_sample_stems": [
+        {
+          "stem": "0000021_00800_d_0000003",
+          "image_size": [
+            960,
+            540
+          ],
+          "box_count": 4,
+          "sample_box": [
+            "0",
+            "0.454167",
+            "0.491667",
+            "0.012500",
+            "0.090741"
+          ]
+        },
+        {
+          "stem": "0000287_01401_d_0000766",
+          "image_size": [
+            1360,
+            765
+          ],
+          "box_count": 24,
+          "sample_box": [
+            "0",
+            "0.888235",
+            "0.915033",
+            "0.022059",
+            "0.060131"
+          ]
+        },
+        {
+          "stem": "0000277_04401_d_0000560",
+          "image_size": [
+            1360,
+            765
+          ],
+          "box_count": 18,
+          "sample_box": [
+            "0",
+            "0.523529",
+            "0.332680",
+            "0.014706",
+            "0.048366"
+          ]
+        },
+        {
+          "stem": "0000116_00819_d_0000084",
+          "image_size": [
+            960,
+            540
+          ],
+          "box_count": 12,
+          "sample_box": [
+            "0",
+            "0.554167",
+            "0.963889",
+            "0.018750",
+            "0.072222"
+          ]
+        },
+        {
+          "stem": "0000277_05001_d_0000562",
+          "image_size": [
+            1360,
+            765
+          ],
+          "box_count": 24,
+          "sample_box": [
+            "0",
+            "0.349265",
+            "0.489542",
+            "0.013235",
+            "0.064052"
+          ]
+        }
+      ]
+    }
+  }
+}

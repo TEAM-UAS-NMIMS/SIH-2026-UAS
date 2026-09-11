@@ -30,3 +30,21 @@ logs/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Datasets and Large Media (Avoid uploading large assets)
+**/datasets/
+**/videos/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.tar
+*.tar.gz
+*.zip
+
+# ML / YOLO Runs, Recordings & Checkpoint Artifacts
+**/runs/
+**/recordings/
+**/weights/
+yolov8n.pt
+!backend/yolov8n.pt
