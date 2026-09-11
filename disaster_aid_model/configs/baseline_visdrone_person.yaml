@@ -1,0 +1,11 @@
+# GridZERO - VisDrone Person Baseline Dataset Specification
+# SIH Problem Statement 26177 (Qualcomm)
+
+path: /home/adi/workspace/hackathons/sih-26/disaster_aid_model/datasets/processed/visdrone_person
+train: images/train
+val: images/val
+
+# Classes
+nc: 1
+names:
+  0: person

@@ -1,0 +1,184 @@
+{
+  "phase": "Phase 0.9A - Baseline Forensic Analysis",
+  "workspace": "/home/adi/workspace/hackathons/sih-26/disaster_aid_model",
+  "baseline_metrics": {
+    "model": "YOLOv8n",
+    "dataset": "VisDrone2019-DET (Person-only, Class 0)",
+    "train_images": 6471,
+    "val_images": 548,
+    "train_person_boxes": 106393,
+    "val_person_boxes": 13969,
+    "epochs": 100,
+    "batch": 8,
+    "imgsz": 640,
+    "seed": 42,
+    "precision": 0.6623,
+    "recall": 0.4725,
+    "map50": 0.5201,
+    "map50_95": 0.2094,
+    "peak_f1": 0.5516,
+    "peak_f1_confidence": 0.2763,
+    "checkpoint_path": "runs/baseline/visdrone_person_yolov8n/weights/best.pt"
+  },
+  "best_epoch": {
+    "epoch": 88,
+    "fitness": 0.20848,
+    "map50": 0.52144,
+    "map50_95": 0.20848,
+    "precision": 0.66383,
+    "recall": 0.46789,
+    "val_box_loss": 2.24491,
+    "val_cls_loss": 1.14558,
+    "val_dfl_loss": 0.81512,
+    "peak_map50_epoch": 86,
+    "peak_map50_value": 0.52147
+  },
+  "training_dynamics": {
+    "classification": "Reasonably converged / Appropriately fit to architectural capacity at 640",
+    "evidence": {
+      "train_box_loss_evolution": "2.99986 (ep 1) -> 2.42301 (ep 50) -> 2.21430 (ep 100)",
+      "val_box_loss_evolution": "2.82709 (ep 1) -> 2.29975 (ep 50) -> 2.24039 (ep 87, min) -> 2.24736 (ep 100)",
+      "train_cls_loss_evolution": "2.31400 (ep 1) -> 1.32119 (ep 50) -> 1.16715 (ep 98, min)",
+      "val_cls_loss_evolution": "1.94450 (ep 1) -> 1.19346 (ep 50) -> 1.14239 (ep 90, min) -> 1.14876 (ep 100)",
+      "overfitting_assessment": "No runaway validation divergence; val box loss drifted by only +0.3% from min to ep 100; val mAP stabilized between 0.517 and 0.521 across final 20 epochs.",
+      "plateau_onset": "Epoch ~75-80"
+    }
+  },
+  "confidence_threshold_tradeoffs": [
+    {"confidence": 0.05, "precision": 0.2624, "recall": 0.6507, "f1": 0.3740},
+    {"confidence": 0.10, "precision": 0.3752, "recall": 0.6021, "f1": 0.4623},
+    {"confidence": 0.15, "precision": 0.4716, "recall": 0.5615, "f1": 0.5126},
+    {"confidence": 0.20, "precision": 0.5540, "recall": 0.5236, "f1": 0.5384},
+    {"confidence": 0.25, "precision": 0.6248, "recall": 0.4886, "f1": 0.5483},
+    {"confidence": 0.276, "precision": 0.6623, "recall": 0.4725, "f1": 0.5516},
+    {"confidence": 0.30, "precision": 0.6934, "recall": 0.4552, "f1": 0.5496},
+    {"confidence": 0.40, "precision": 0.8130, "recall": 0.3824, "f1": 0.5201},
+    {"confidence": 0.50, "precision": 0.8956, "recall": 0.2983, "f1": 0.4475},
+    {"confidence": 0.60, "precision": 0.9567, "recall": 0.1883, "f1": 0.3147}
+  ],
+  "small_object_statistics": {
+    "methodology": "Empirical evaluation of best.pt across 548 VisDrone validation images at IoU=0.5, Conf=0.25, stratified by bounding box sqrt(area) in original image pixel space.",
+    "dataset_total_gt_boxes": 13969,
+    "size_bins": {
+      "tiny_under_16px": {
+        "definition": "sqrt(area) < 16 px (area < 256 px^2)",
+        "ground_truth_count": 6375,
+        "gt_fraction_pct": 45.64,
+        "true_positives": 1972,
+        "false_positives": 1884,
+        "false_negatives": 4403,
+        "recall_pct": 30.93,
+        "precision_pct": 51.14,
+        "f1": 0.3854
+      },
+      "small_16_to_32px": {
+        "definition": "16 <= sqrt(area) < 32 px (256 <= area < 1024 px^2)",
+        "ground_truth_count": 6002,
+        "gt_fraction_pct": 42.97,
+        "true_positives": 3612,
+        "false_positives": 1930,
+        "false_negatives": 2390,
+        "recall_pct": 60.18,
+        "precision_pct": 65.17,
+        "f1": 0.6258
+      },
+      "medium_32_to_64px": {
+        "definition": "32 <= sqrt(area) < 64 px (1024 <= area < 4096 px^2)",
+        "ground_truth_count": 1501,
+        "gt_fraction_pct": 10.75,
+        "true_positives": 1146,
+        "false_positives": 292,
+        "false_negatives": 355,
+        "recall_pct": 76.35,
+        "precision_pct": 79.69,
+        "f1": 0.7799
+      },
+      "large_over_64px": {
+        "definition": "sqrt(area) >= 64 px (area >= 4096 px^2)",
+        "ground_truth_count": 91,
+        "gt_fraction_pct": 0.65,
+        "true_positives": 71,
+        "false_positives": 15,
+        "false_negatives": 20,
+        "recall_pct": 78.02,
+        "precision_pct": 82.56,
+        "f1": 0.8023
+      }
+    },
+    "key_small_object_finding": "Objects >= 32 px achieve 76.3% - 78.0% recall. The low aggregate baseline recall (47.25%) is mathematically dominated by the <16 px cohort (30.9% recall, 4,403 missed targets), which makes up 45.6% of the dataset."
+  },
+  "resource_metrics": {
+    "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+    "dedicated_vram_total_mb": 6141.0,
+    "peak_vram_smi_mb": 3466.0,
+    "peak_vram_utilization_pct": 56.44,
+    "unallocated_headroom_mb": 2675.0,
+    "peak_torch_allocated_mb": 2006.93,
+    "peak_torch_reserved_mb": 3292.0,
+    "max_gpu_utilization_pct": 93.0,
+    "max_temperature_c": 81.0,
+    "max_power_draw_w": 79.7,
+    "training_time_seconds": 4813.39,
+    "training_time_hours": 1.34,
+    "training_throughput_batches_per_sec": 17.5,
+    "inference_latency_ms": 1.6,
+    "model_parameters": 3005843,
+    "model_gflops_at_640": 8.1
+  },
+  "observed_failure_modes": [
+    {
+      "mode": "Sub-16px Downsampling Attenuation",
+      "status": "Observed failure with mathematical proof",
+      "description": "96.1% of images are >= 1360x765. Resizing to 640 causes 2.12x downsampling, compressing a 14px target to 6.6px, which falls below the stride-8 P3 detection layer cell size."
+    },
+    {
+      "mode": "Dense Crowd Suppression via NMS",
+      "status": "Observed failure with empirical test",
+      "description": "In dense scenes, ground-truth targets are separated by <15px. Relaxing NMS IoU threshold from 0.50 to 0.85 recovered 16 missed detections (30 -> 46 detections on a 49-person image)."
+    },
+    {
+      "mode": "Two-Wheeler Rider Annotation Ambiguity",
+      "status": "Observed failure with annotation verification",
+      "description": "VisDrone assigns riders of motorcycles/bicycles to vehicle classes or category 0 (ignored regions). YOLOv8n accurately detects the human body, but standard evaluation penalizes it as a false positive."
+    },
+    {
+      "mode": "Low-Contrast Shadow & Partial Occlusion",
+      "status": "Observed failure",
+      "description": "Pedestrians under dense tree canopies or partially occluded by street furniture/parked vehicles exhibit low detection confidence (<0.25)."
+    }
+  ],
+  "candidate_experiments": [
+    {
+      "candidate": "Candidate A: Higher-Resolution Training (YOLOv8n @ imgsz=960)",
+      "rank": 1,
+      "feasibility": "High (proven VRAM headroom of 2,675 MiB on RTX 4050)",
+      "scientific_value": "Highest: isolates spatial resolution as a single controlled variable against the 640 baseline."
+    },
+    {
+      "candidate": "Candidate B: Sliced / Tiled Inference (SAHI) on Baseline Checkpoint",
+      "rank": 2,
+      "feasibility": "Immediate (zero training cost, tests existing best.pt)",
+      "scientific_value": "High: determines how much recall was lost strictly to inference-time resizing without changing weights."
+    },
+    {
+      "candidate": "Candidate C: Model Capacity Scaling (YOLOv8s @ imgsz=640)",
+      "rank": 3,
+      "feasibility": "High",
+      "scientific_value": "Moderate: forensic evidence shows that capacity cannot recover sub-stride spatial information destroyed by downsampling."
+    },
+    {
+      "candidate": "Candidate D: SARD Domain Adaptation",
+      "rank": 4,
+      "feasibility": "Blocked (requires IEEE DataPort credentials)",
+      "scientific_value": "High for SAR domain gap, but prerequisite data acquisition is pending."
+    }
+  ],
+  "recommended_next_experiment": {
+    "experiment": "Higher-Resolution Training: YOLOv8n at imgsz=960 (100 Epochs)",
+    "why": "It directly tests the primary mathematical bottleneck identified in the forensic analysis: sub-16px target attenuation caused by 640 downsampling. It alters exactly one experimental variable while preserving the identical architecture, dataset, and training protocol. The RTX 4050 has 2,675 MiB of unallocated VRAM headroom, making batch 4 or 6 at 960 completely feasible."
+  },
+  "second_best_experiment": {
+    "experiment": "Tiled / Sliced Inference (SAHI) Evaluation on Frozen Baseline best.pt",
+    "why": "Requires zero training compute and evaluates the baseline model at 100% native pixel density on full-resolution VisDrone imagery (1360x765 / 1920x1080) to decouple feature representation from input scale."
+  }
+}
