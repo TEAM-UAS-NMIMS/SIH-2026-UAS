@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'leaflet/dist/leaflet.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-100 text-slate-800 font-sans antialiased;
+  }
+}
+
+@layer components {
+  .panel {
+    @apply bg-white border border-slate-200 rounded-lg shadow-sm;
+  }
+
+  .stat-row {
+    @apply flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0;
+  }
+
+  .stat-label {
+    @apply text-xs font-medium text-slate-400 uppercase tracking-wide;
+  }
+
+  .stat-value {
+    @apply text-sm font-semibold text-slate-800 tabular-nums;
+  }
+
+  .pill {
+    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide;
+  }
+
+  .pill-green {
+    @apply pill bg-green-100 text-green-700 ring-1 ring-green-200;
+  }
+
+  .pill-amber {
+    @apply pill bg-amber-100 text-amber-700 ring-1 ring-amber-200;
+  }
+
+  .pill-red {
+    @apply pill bg-red-100 text-red-700 ring-1 ring-red-200;
+  }
+
+  .pill-blue {
+    @apply pill bg-blue-100 text-blue-700 ring-1 ring-blue-200;
+  }
+
+  .pill-slate {
+    @apply pill bg-slate-100 text-slate-600 ring-1 ring-slate-200;
+  }
+
+  .cmd-btn {
+    @apply w-full py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-150;
+  }
+}
