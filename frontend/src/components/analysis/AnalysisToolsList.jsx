@@ -22,11 +22,11 @@ import Icon from "../Icon";
 function ConceptOnlyPanel({ name }) {
   return (
     <div className="flex flex-col items-center gap-3 py-6 px-3 text-center">
-      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+      <div className="w-14 h-14 rounded-full bg-[var(--surface-2)] flex items-center justify-center text-[var(--ink-3)]">
         <Icon name="microscope" size={26} />
       </div>
-      <p className="text-sm font-bold text-slate-600">{name}</p>
-      <div className="rounded-lg bg-amber-50 ring-1 ring-amber-200 px-4 py-3 w-full text-left">
+      <p className="text-sm font-bold text-[var(--ink-2)]">{name}</p>
+      <div className="rounded-sm bg-amber-50 ring-1 ring-amber-200 px-4 py-3 w-full text-left">
         <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider mb-1">
           Not available in this build
         </p>
@@ -55,30 +55,30 @@ function CoverageMapPanel({ flightPath, searchPolygon }) {
     if (poly > 0) areaPct = Math.min(100, (flown / poly) * 100);
   }
 
-  const barColor = areaPct >= 80 ? "#16a34a" : areaPct >= 50 ? "#d97706" : "#dc2626";
+  const barColor = areaPct >= 80 ? "#111111" : areaPct >= 50 ? "#8A5A00" : "#B0201A";
 
   return (
     <div className="flex flex-col gap-3 px-3 py-4">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <p className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">
         Coverage estimate
       </p>
-      <div className="text-3xl font-bold text-slate-800 tabular-nums">
+      <div className="text-3xl font-bold text-black tabular-nums">
         {areaPct.toFixed(1)}%
       </div>
-      <div className="w-full h-2 rounded-full bg-slate-100 overflow-hidden">
+      <div className="w-full h-2 rounded-full bg-[var(--surface-2)] overflow-hidden">
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${areaPct}%`, background: barColor }}
         />
       </div>
-      <p className="text-[11px] text-slate-400">
+      <p className="text-[11px] text-[var(--ink-3)]">
         Based on bounding box of {flightPath.length} GPS samples vs. search
         polygon extent. Not a true coverage algorithm.
       </p>
-      <div className="text-[11px] font-mono text-slate-500 bg-slate-50
+      <div className="text-[11px] font-mono text-[var(--ink-2)] bg-[var(--surface-2)]
                       rounded px-2.5 py-2 flex flex-col gap-1">
-        <div><span className="text-slate-400">Path pts:</span> {flightPath.length}</div>
-        <div><span className="text-slate-400">Polygon pts:</span> {searchPolygon.length}</div>
+        <div><span className="text-[var(--ink-3)]">Path pts:</span> {flightPath.length}</div>
+        <div><span className="text-[var(--ink-3)]">Polygon pts:</span> {searchPolygon.length}</div>
       </div>
     </div>
   );
@@ -90,16 +90,16 @@ function HazardPanel({ events }) {
   const warnings = events.filter((e) => e.severity === "warning");
   return (
     <div className="flex flex-col gap-2 px-3 py-4">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+      <p className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest mb-1">
         Critical events during mission
       </p>
       {critical.length === 0 && warnings.length === 0 && (
-        <p className="text-xs text-slate-400 italic">No hazard events logged.</p>
+        <p className="text-xs text-[var(--ink-3)] italic">No hazard events logged.</p>
       )}
       {[...critical, ...warnings].map((ev, i) => (
         <div
           key={i}
-          className={`rounded-md px-3 py-2 text-xs font-medium
+          className={`rounded-sm px-3 py-2 text-xs font-medium
             ${ev.severity === "critical"
               ? "bg-red-50 text-red-700 ring-1 ring-red-200"
               : "bg-amber-50 text-amber-700 ring-1 ring-amber-200"
@@ -122,7 +122,7 @@ function FlightReplayPanel({ flightPath }) {
 
   if (total === 0) {
     return (
-      <div className="px-3 py-4 text-xs text-slate-400 italic">
+      <div className="px-3 py-4 text-xs text-[var(--ink-3)] italic">
         No GPS path recorded this session.
       </div>
     );
@@ -133,14 +133,14 @@ function FlightReplayPanel({ flightPath }) {
 
   return (
     <div className="flex flex-col gap-3 px-3 py-4">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <p className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">
         Step through flight path
       </p>
       <div className="flex items-center gap-2">
         <button
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
-          className="px-2.5 py-1.5 rounded text-xs font-bold bg-slate-100
+          className="px-2.5 py-1.5 rounded text-xs font-bold bg-[var(--surface-2)]
                      hover:bg-slate-200 disabled:opacity-40 transition-all"
         >
           ◀
@@ -156,28 +156,28 @@ function FlightReplayPanel({ flightPath }) {
         <button
           onClick={() => setStep((s) => Math.min(total - 1, s + 1))}
           disabled={step === total - 1}
-          className="px-2.5 py-1.5 rounded text-xs font-bold bg-slate-100
+          className="px-2.5 py-1.5 rounded text-xs font-bold bg-[var(--surface-2)]
                      hover:bg-slate-200 disabled:opacity-40 transition-all"
         >
           ▶
         </button>
       </div>
-      <div className="text-[11px] font-mono text-slate-600 bg-slate-50
+      <div className="text-[11px] font-mono text-[var(--ink-2)] bg-[var(--surface-2)]
                       rounded px-2.5 py-2 flex flex-col gap-1">
         <div>
-          <span className="text-slate-400">Step:</span>{" "}
+          <span className="text-[var(--ink-3)]">Step:</span>{" "}
           {step + 1} / {total}
         </div>
         <div>
-          <span className="text-slate-400">Lat:</span>{" "}
+          <span className="text-[var(--ink-3)]">Lat:</span>{" "}
           {pt[0].toFixed(6)}
         </div>
         <div>
-          <span className="text-slate-400">Lon:</span>{" "}
+          <span className="text-[var(--ink-3)]">Lon:</span>{" "}
           {pt[1].toFixed(6)}
         </div>
         <div>
-          <span className="text-slate-400">Progress:</span>{" "}
+          <span className="text-[var(--ink-3)]">Progress:</span>{" "}
           {progress.toFixed(1)}%
         </div>
       </div>
@@ -212,25 +212,25 @@ function ExportPanel({ detections, flightPath, events }) {
 
   return (
     <div className="flex flex-col gap-3 px-3 py-4">
-      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <p className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">
         Export mission data
       </p>
-      <p className="text-xs text-slate-500">
+      <p className="text-xs text-[var(--ink-2)]">
         Downloads a JSON file containing all detections, the recorded flight
         path, and the event timeline from this session.
       </p>
-      <div className="text-[11px] font-mono text-slate-500 bg-slate-50
+      <div className="text-[11px] font-mono text-[var(--ink-2)] bg-[var(--surface-2)]
                       rounded px-2.5 py-2 flex flex-col gap-1">
-        <div><span className="text-slate-400">Detections:</span> {detections.length}</div>
-        <div><span className="text-slate-400">Path pts:</span> {flightPath.length}</div>
-        <div><span className="text-slate-400">Events:</span> {events.length}</div>
+        <div><span className="text-[var(--ink-3)]">Detections:</span> {detections.length}</div>
+        <div><span className="text-[var(--ink-3)]">Path pts:</span> {flightPath.length}</div>
+        <div><span className="text-[var(--ink-3)]">Events:</span> {events.length}</div>
       </div>
       <button
         onClick={handleExport}
-        className={`w-full py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase
+        className={`w-full py-2.5 rounded-sm text-xs font-bold tracking-widest uppercase
           transition-all ${exported
-            ? "bg-green-100 text-green-700 ring-1 ring-green-200"
-            : "bg-slate-800 text-white hover:bg-slate-700"
+            ? "pill"
+            : "btn-primary"
           }`}
       >
         <span className="inline-flex items-center justify-center gap-1.5">
@@ -276,8 +276,8 @@ export default function AnalysisToolsList({
   return (
     <div className="panel flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-4 pt-3 pb-2 border-b border-slate-100 shrink-0">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-4 pt-3 pb-2 border-b border-[var(--rule)] shrink-0">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Analysis Tools
         </h2>
       </div>
@@ -294,13 +294,13 @@ export default function AnalysisToolsList({
                 className={`w-full flex items-center gap-3 px-4 py-3 text-left
                   border-b border-slate-50 transition-colors
                   ${isActive
-                    ? "bg-blue-50 border-l-2 border-l-blue-500"
-                    : "hover:bg-slate-50"
+                    ? "bg-[var(--surface-2)] border-l-2 border-l-black"
+                    : "hover:bg-[var(--surface-2)]"
                   }`}
               >
                 <Icon name={tool.icon} size={15} />
                 <div className="flex-1 min-w-0">
-                  <p className={`text-xs font-semibold ${isActive ? "text-blue-700" : "text-slate-700"}`}>
+                  <p className={`text-xs font-semibold ${isActive ? "text-black" : "text-black"}`}>
                     {tool.label}
                   </p>
                   {tool.conceptOnly && (
@@ -309,14 +309,14 @@ export default function AnalysisToolsList({
                     </p>
                   )}
                 </div>
-                <span className="text-slate-300 text-xs">
+                <span className="text-[var(--ink-3)] text-xs">
                   {tool.id === "report" ? "→" : isActive ? "▲" : "▼"}
                 </span>
               </button>
 
               {/* Expanded content */}
               {isActive && (
-                <div className="bg-slate-50 border-b border-slate-100">
+                <div className="bg-[var(--surface-2)] border-b border-[var(--rule)]">
                   {tool.conceptOnly ? (
                     <ConceptOnlyPanel name={tool.label} />
                   ) : tool.id === "coverage" ? (

@@ -1,58 +1,289 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
 @import 'leaflet/dist/leaflet.css';
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * gridZERO operator console — visual system.
+ *
+ * Rules this file enforces:
+ *   1. White ground, black type. No gradients anywhere.
+ *   2. Colour carries meaning, never decoration. Exactly two accents exist —
+ *      CAUTION (amber) and CRITICAL (red) — and they appear only when
+ *      something actually needs the operator's attention. A nominal console is
+ *      monochrome, so anything coloured is by definition worth looking at.
+ *   3. Numerals are monospaced and tabular so readouts don't jitter as they
+ *      update, and columns of figures line up.
+ *
+ * Components share these classes, so the whole console restyles from here
+ * rather than from ad hoc styling per screen.
+ */
+
+:root {
+  --ink:          #111111;
+  --ink-2:        #5A5A5A;
+  --ink-3:        #8C8C8C;
+  --rule:         #E4E4E4;
+  --rule-strong:  #CFCFCF;
+  --surface:      #FFFFFF;
+  --surface-2:    #F7F7F7;
+
+  /* The only two colours in the system. */
+  --caution:      #8A5A00;
+  --caution-bg:   #FBF3E4;
+  --critical:     #B0201A;
+  --critical-bg:  #FBEAE9;
+}
+
 @layer base {
   body {
-    @apply bg-slate-100 text-slate-800 font-sans antialiased;
+    @apply antialiased;
+    background: var(--surface);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  /* Numerals line up and don't shift width as telemetry updates. */
+  .tabular-nums,
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--surface);
   }
 }
 
 @layer components {
+
+  /* ── Surfaces ─────────────────────────────────────────────────────────── */
+
   .panel {
-    @apply bg-white border border-slate-200 rounded-lg shadow-sm;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 2px;
   }
+
+  /* Section heading used at the top of every panel. */
+  .panel-title {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em];
+    color: var(--ink-2);
+  }
+
+  .panel-head {
+    @apply flex items-center justify-between px-3 py-2 shrink-0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* ── Readouts ─────────────────────────────────────────────────────────── */
 
   .stat-row {
-    @apply flex items-center justify-between py-1.5 border-b border-slate-100 last:border-0;
+    @apply flex items-center justify-between py-1.5;
+    border-bottom: 1px solid var(--rule);
   }
+  .stat-row:last-child { border-bottom: 0; }
 
   .stat-label {
-    @apply text-xs font-medium text-slate-400 uppercase tracking-wide;
+    @apply text-[10px] font-medium uppercase tracking-[0.12em];
+    color: var(--ink-3);
   }
 
   .stat-value {
-    @apply text-sm font-semibold text-slate-800 tabular-nums;
+    @apply text-[13px] font-semibold tabular-nums;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    color: var(--ink);
   }
+
+  /* Value that is genuinely unavailable — never render 0 in its place. */
+  .stat-value-absent {
+    @apply text-[13px] font-normal;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    color: var(--ink-3);
+  }
+
+  /* ── Status vocabulary ────────────────────────────────────────────────── */
+  /* One shape for every state in the console. Nominal is monochrome; only
+     caution and critical carry colour. */
 
   .pill {
-    @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide;
+    @apply inline-flex items-center gap-1.5 px-2 py-[3px] text-[10px] font-semibold
+           uppercase tracking-[0.1em] whitespace-nowrap;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    border-radius: 2px;
+    border: 1px solid var(--rule-strong);
+    background: var(--surface);
+    color: var(--ink-2);
   }
 
-  .pill-green {
-    @apply pill bg-green-100 text-green-700 ring-1 ring-green-200;
+  /* Nominal / informational — deliberately colourless. */
+  .pill-green,
+  .pill-blue,
+  .pill-slate {
+    @apply pill;
+  }
+
+  /* Active / emphasised nominal state: inverted rather than coloured. */
+  .pill-strong {
+    @apply pill;
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--surface);
   }
 
   .pill-amber {
-    @apply pill bg-amber-100 text-amber-700 ring-1 ring-amber-200;
+    @apply pill;
+    color: var(--caution);
+    background: var(--caution-bg);
+    border-color: #E6D3AE;
   }
 
   .pill-red {
-    @apply pill bg-red-100 text-red-700 ring-1 ring-red-200;
+    @apply pill;
+    color: var(--critical);
+    background: var(--critical-bg);
+    border-color: #E9C3C0;
   }
 
-  .pill-blue {
-    @apply pill bg-blue-100 text-blue-700 ring-1 ring-blue-200;
+  /* Small state dot used inside pills and rows. */
+  .dot {
+    @apply inline-block w-1.5 h-1.5 rounded-full shrink-0;
+    background: var(--ink-3);
   }
+  .dot-ok       { background: var(--ink); }
+  .dot-caution  { background: var(--caution); }
+  .dot-critical { background: var(--critical); }
 
-  .pill-slate {
-    @apply pill bg-slate-100 text-slate-600 ring-1 ring-slate-200;
-  }
+  /* ── Controls ─────────────────────────────────────────────────────────── */
 
   .cmd-btn {
-    @apply w-full py-2 rounded-md text-xs font-bold tracking-widest uppercase transition-all duration-150;
+    @apply w-full py-2 text-[11px] font-semibold tracking-[0.14em] uppercase
+           transition-colors duration-150;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    border-radius: 2px;
+    border: 1px solid var(--ink);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .cmd-btn:hover:not(:disabled) {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .cmd-btn:disabled {
+    border-color: var(--rule-strong);
+    color: var(--ink-3);
+    background: var(--surface-2);
+    cursor: not-allowed;
+  }
+
+  /* The one destructive control gets the critical accent, nothing else does. */
+  .cmd-btn-critical {
+    border-color: var(--critical);
+    color: var(--critical);
+  }
+  .cmd-btn-critical:hover:not(:disabled) {
+    background: var(--critical);
+    color: var(--surface);
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-[11px]
+           font-semibold uppercase tracking-[0.1em] transition-colors duration-150;
+    border-radius: 2px;
+    border: 1px solid var(--ink);
+    background: var(--surface);
+    color: var(--ink);
+  }
+  .btn:hover:not(:disabled) { background: var(--ink); color: var(--surface); }
+  .btn:disabled {
+    border-color: var(--rule-strong);
+    color: var(--ink-3);
+    background: var(--surface-2);
+    cursor: not-allowed;
+  }
+
+  .btn-primary {
+    background: var(--ink);
+    color: var(--surface);
+  }
+  .btn-primary:hover:not(:disabled) { background: #000; }
+
+  /* ── Notices ──────────────────────────────────────────────────────────── */
+  /* Used for "not wired" / "not available in this build" states. These must
+     stay visually distinct so a cleaner UI never makes a stub look real. */
+
+  .notice {
+    @apply text-[11px] leading-snug px-2.5 py-2;
+    border-radius: 2px;
+    border: 1px dashed var(--rule-strong);
+    background: var(--surface-2);
+    color: var(--ink-2);
+  }
+
+  .notice-caution {
+    @apply text-[11px] leading-snug px-2.5 py-2;
+    border-radius: 2px;
+    border: 1px solid #E6D3AE;
+    background: var(--caution-bg);
+    color: var(--caution);
+  }
+
+  .notice-critical {
+    @apply text-[11px] leading-snug px-2.5 py-2;
+    border-radius: 2px;
+    border: 1px solid #E9C3C0;
+    background: var(--critical-bg);
+    color: var(--critical);
+  }
+
+  /* ── Scrollbars ───────────────────────────────────────────────────────── */
+
+  .scroll-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
+  .scroll-thin::-webkit-scrollbar { width: 8px; height: 8px; }
+  .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+  .scroll-thin::-webkit-scrollbar-thumb {
+    background: var(--rule-strong);
+    border-radius: 2px;
+  }
+}
+
+/* Leaflet: mute the default chrome so the map sits inside the system. */
+.leaflet-container {
+  font-family: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  background: var(--surface-2);
+}
+
+/*
+ * Desaturate the basemap so the console stays monochrome and the only colour
+ * on the map is the mission data drawn over it — drone, detections, hazard
+ * zone. Done as a CSS filter on the tile pane rather than by switching to a
+ * grey tile provider, because the free greyscale CDNs now require an API key
+ * and stamp "API KEY REQUIRED" across the tiles.
+ *
+ * The filter applies only to the tile pane, so overlay panes (markers, vectors,
+ * popups) keep their full colour.
+ */
+.leaflet-tile-pane {
+  filter: grayscale(1) contrast(0.92) brightness(1.06);
+}
+.leaflet-bar a {
+  color: var(--ink) !important;
+  border-radius: 0 !important;
+}
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  background: rgba(255, 255, 255, .78) !important;
+  color: var(--ink-3) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    transition-duration: .001ms !important;
   }
 }

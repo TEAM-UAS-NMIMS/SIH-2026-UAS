@@ -26,7 +26,7 @@
  * StatusBar, TelemetryContext, or any other project file.
  */
 
-import { useRef, useEffect, useMemo } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -34,8 +34,10 @@ import {
   Popup,
   Circle,
   useMap,
+  useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
+import MapAutoResize from "../MapAutoResize";
 import Icon from "../Icon";
 import { iconMarkup } from "../icons";
 
@@ -73,9 +75,9 @@ function makeDroneIcon(heading) {
 
 /** Priority → fill colour. */
 const PRIORITY_COLOR = {
-  high:   "#dc2626",   // red-600
-  medium: "#d97706",   // amber-600
-  low:    "#16a34a",   // green-600
+  high:   "#B0201A",   // red-600
+  medium: "#8A5A00",   // amber-600
+  low:    "#111111",   // nominal
 };
 
 /**
@@ -105,16 +107,52 @@ function makeDetectionIcon(priority, size = 14) {
  * valid fix (lat ≠ 0, lon ≠ 0) arrives.  After that initial fly-to the
  * component is inert; the user can pan/zoom freely and the map never snaps back.
  */
-function InitialFlyTo({ lat, lon }) {
-  const map     = useMap();
-  const settled = useRef(false);
+function FollowAircraft({ lat, lon, follow, onUserPan }) {
+  const map = useMap();
+  const zoomedIn = useRef(false);
+  const programmatic = useRef(false);
 
+  const hasFix = lat !== 0 && lon !== 0;
+
+  // First valid fix: jump straight to survey zoom. Deliberately NOT animated —
+  // an animated flyTo is cancelled by the next telemetry tick's panTo, which
+  // left the map stranded at world zoom showing the wrong continent.
   useEffect(() => {
-    if (!settled.current && lat !== 0 && lon !== 0) {
-      map.flyTo([lat, lon], 17, { duration: 1.2 });
-      settled.current = true;
+    if (zoomedIn.current || !hasFix) return;
+    programmatic.current = true;
+    map.setView([lat, lon], 17, { animate: false });
+    zoomedIn.current = true;
+    const t = setTimeout(() => { programmatic.current = false; }, 120);
+    return () => clearTimeout(t);
+  }, [hasFix, lat, lon, map]);
+
+  // Afterwards keep the aircraft in view. At survey speed it leaves a zoom-17
+  // viewport within seconds, so a map that only centres once shows empty
+  // ground for most of the mission.
+  useEffect(() => {
+    if (!zoomedIn.current || !follow || !hasFix) return;
+    programmatic.current = true;
+    map.panTo([lat, lon], { animate: true, duration: 0.3 });
+    const t = setTimeout(() => { programmatic.current = false; }, 380);
+    return () => clearTimeout(t);
+  }, [lat, lon, follow, hasFix, map]);
+
+  // Re-centre immediately when the operator re-arms Follow.
+  useEffect(() => {
+    if (follow && zoomedIn.current && hasFix) {
+      programmatic.current = true;
+      map.setView([lat, lon], Math.max(map.getZoom(), 16), { animate: false });
+      setTimeout(() => { programmatic.current = false; }, 120);
     }
-  }, [lat, lon, map]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [follow]);
+
+  // A manual pan or zoom releases follow, so the operator can inspect the map
+  // without it yanking back. Re-arm with the Follow control.
+  useMapEvents({
+    dragstart() { if (!programmatic.current) onUserPan(); },
+    zoomstart() { if (!programmatic.current) onUserPan(); },
+  });
 
   return null;
 }
@@ -150,8 +188,8 @@ function DetectionMarker({ det }) {
                 det.priority === "high"   ? "#fee2e2" :
                 det.priority === "medium" ? "#fef3c7" : "#dcfce7",
               color:
-                det.priority === "high"   ? "#dc2626" :
-                det.priority === "medium" ? "#d97706" : "#16a34a",
+                det.priority === "high"   ? "#B0201A" :
+                det.priority === "medium" ? "#8A5A00" : "#111111",
             }}>
               {det.priority}
             </span>
@@ -190,8 +228,10 @@ function DetectionMarker({ det }) {
 
 // ─── MapPanel ─────────────────────────────────────────────────────────────────
 
-const DEFAULT_CENTER = [51.505, -0.09]; // fallback before first GPS fix
-const DEFAULT_ZOOM   = 3;
+// NMIMS Shirpur campus — the configured mission area. Used until the first
+// GPS fix arrives; zoom 16 shows the whole search box rather than the globe.
+const DEFAULT_CENTER = [21.3486, 74.8800];
+const DEFAULT_ZOOM   = 16;
 
 export default function MapPanel({
   droneLat       = 0,
@@ -201,27 +241,43 @@ export default function MapPanel({
   detections     = [],
 }) {
   const hasPosition = droneLat !== 0 || droneLon !== 0;
+  const [follow, setFollow] = useState(true);
   const isVio       = positionSource === "VIO_FALLBACK";
 
   // Drone icon is recreated whenever heading changes, but that's fine —
   // Leaflet diffing skips DOM patches if the element is the same element.
-  const droneIcon = useMemo(() => makeDroneIcon(droneHeading), [droneHeading]);
+  const droneIcon = useMemo(
+    () => makeDroneIcon(Number.isFinite(droneHeading) ? droneHeading : 0),
+    [droneHeading],
+  );
 
   return (
-    <div className="panel overflow-hidden flex flex-col" style={{ minHeight: 0 }}>
+    <div className="panel overflow-hidden flex flex-col h-full" style={{ minHeight: 0 }}>
       {/* ── Header bar ── */}
-      <div className="px-3 pt-2.5 pb-2 flex items-center justify-between shrink-0 border-b border-slate-100">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="panel-head">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Live Map
         </h2>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setFollow((f) => !f)}
+            className="pill"
+            style={follow
+              ? { background: "var(--ink)", borderColor: "var(--ink)", color: "#fff" }
+              : undefined}
+            title={follow
+              ? "Map is tracking the aircraft — click to unlock and pan freely"
+              : "Map is unlocked — click to re-centre and track the aircraft"}
+          >
+            {follow ? "Following" : "Follow"}
+          </button>
           {isVio && (
             <span className="pill-amber text-[10px]">VIO — position uncertain</span>
           )}
           {positionSource === "NO_POSITION" && (
             <span className="pill-slate text-[10px]">No GPS fix</span>
           )}
-          <span className="text-[10px] text-slate-400 font-mono">OpenStreetMap</span>
+          <span className="text-[10px] text-[var(--ink-3)] font-mono">OpenStreetMap</span>
         </div>
       </div>
 
@@ -236,11 +292,19 @@ export default function MapPanel({
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          {/* One-shot fly-to when first fix arrives */}
-          <InitialFlyTo lat={droneLat} lon={droneLon} />
+          {/* Keeps Leaflet's measured size in step with its flex container */}
+          <MapAutoResize />
+
+          {/* Keeps the aircraft in view; releases on manual pan/zoom */}
+          <FollowAircraft
+            lat={droneLat}
+            lon={droneLon}
+            follow={follow}
+            onUserPan={() => setFollow(false)}
+          />
 
           {/* ── Drone marker ── */}
           {hasPosition && (
@@ -260,7 +324,7 @@ export default function MapPanel({
                     </div>
                     <div>
                       <span style={{ color: "#94a3b8" }}>Heading</span>{" "}
-                      {droneHeading.toFixed(0)}°
+                      {Number.isFinite(droneHeading) ? `${droneHeading.toFixed(0)}°` : "——"}
                     </div>
                     <div>
                       <span style={{ color: "#94a3b8" }}>Source</span>{" "}
@@ -276,7 +340,7 @@ export default function MapPanel({
                   center={[droneLat, droneLon]}
                   radius={12}
                   pathOptions={{
-                    color:       "#d97706",  // amber-600
+                    color:       "#8A5A00",  // caution
                     weight:      2,
                     fill:        false,
                     dashArray:   "6 4",
@@ -294,11 +358,11 @@ export default function MapPanel({
       </div>
 
       {/* ── Footer legend ── */}
-      <div className="px-3 py-1.5 flex items-center gap-4 border-t border-slate-100 bg-slate-50 shrink-0">
+      <div className="px-3 py-1.5 flex items-center gap-3 flex-wrap shrink-0" style={{ borderTop: "1px solid var(--rule)", background: "var(--surface-2)" }}>
         <LegendItem icon="drone" label="Drone" />
-        <LegendDot color="#dc2626" label="High priority" />
-        <LegendDot color="#d97706" label="Medium priority" />
-        <LegendDot color="#16a34a" label="Low priority" />
+        <LegendDot color="#B0201A" label="High priority" />
+        <LegendDot color="#8A5A00" label="Medium priority" />
+        <LegendDot color="#111111" label="Low priority" />
         {isVio && <LegendVio />}
       </div>
     </div>
@@ -310,8 +374,8 @@ export default function MapPanel({
 function LegendItem({ icon, label }) {
   return (
     <div className="flex items-center gap-1.5">
-      <Icon name={icon} size={15} className="text-slate-600" />
-      <span className="text-[10px] text-slate-400 font-medium">{label}</span>
+      <Icon name={icon} size={15} className="text-[var(--ink-2)]" />
+      <span className="text-[10px] text-[var(--ink-3)] font-medium">{label}</span>
     </div>
   );
 }
@@ -329,7 +393,7 @@ function LegendDot({ color, label }) {
           boxShadow: `0 0 0 1px ${color}`,
         }}
       />
-      <span className="text-[10px] text-slate-400 font-medium">{label}</span>
+      <span className="text-[10px] text-[var(--ink-3)] font-medium">{label}</span>
     </div>
   );
 }
@@ -340,7 +404,7 @@ function LegendVio() {
       <svg width="16" height="10" viewBox="0 0 16 10">
         <line
           x1="0" y1="5" x2="16" y2="5"
-          stroke="#d97706" strokeWidth="2" strokeDasharray="4 2"
+          stroke="#8A5A00" strokeWidth="2" strokeDasharray="4 2"
         />
       </svg>
       <span className="text-[10px] text-amber-600 font-medium">VIO uncertainty</span>

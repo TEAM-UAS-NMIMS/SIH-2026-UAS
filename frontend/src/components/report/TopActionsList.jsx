@@ -27,23 +27,23 @@ function RankBadge({ rank }) {
 
 function ActionRow({ item }) {
   return (
-    <div className="flex items-start gap-3 py-3.5 border-b border-slate-100 last:border-0">
+    <div className="flex items-start gap-3 py-3.5 border-b border-[var(--rule)] last:border-0">
       <RankBadge rank={item.rank} />
 
       <div className="flex flex-col gap-1 min-w-0">
         {/* Action headline */}
-        <p className="text-sm font-semibold text-slate-800 leading-snug">
+        <p className="text-sm font-semibold text-black leading-snug">
           {item.action}
         </p>
 
         {/* Justification (smaller, muted) */}
-        <p className="text-xs text-slate-500 leading-relaxed">
+        <p className="text-xs text-[var(--ink-2)] leading-relaxed">
           {item.justification}
         </p>
 
         {/* Detection ID chip */}
         {item.detection_id && (
-          <span className="text-[9px] font-mono text-slate-300 mt-0.5">
+          <span className="text-[9px] font-mono text-[var(--ink-3)] mt-0.5">
             det:{item.detection_id.slice(0, 8)}
           </span>
         )}
@@ -58,8 +58,8 @@ export default function TopActionsList({ actions = [] }) {
   return (
     <div className="panel flex flex-col overflow-hidden">
       {/* Header */}
-      <div className="px-4 pt-3 pb-2.5 border-b border-slate-100 shrink-0 flex items-center justify-between">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-4 pt-3 pb-2.5 border-b border-[var(--rule)] shrink-0 flex items-center justify-between">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Recommended Actions
         </h2>
         <span className="pill-slate text-[10px]">
@@ -70,7 +70,7 @@ export default function TopActionsList({ actions = [] }) {
       {/* Action rows */}
       <div className="px-4 overflow-y-auto flex-1">
         {actions.length === 0 ? (
-          <p className="text-xs text-slate-400 italic py-4">
+          <p className="text-xs text-[var(--ink-3)] italic py-4">
             No actionable detections — all may be rejected or no data yet.
           </p>
         ) : (

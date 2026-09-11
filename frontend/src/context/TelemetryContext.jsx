@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import { WS_URL } from "../config";
 
-const WS_URL = "ws://localhost:8000/ws";
+// WS URL follows the same env-driven base as the REST API.
 
 // Telemetry is considered STALE when no update has arrived for this long.
 // The backend stamps telemetry_updated_at on every MAVLink tick.
@@ -11,12 +12,16 @@ const WS_INITIAL_DELAY_MS = 500;
 const WS_MAX_DELAY_MS     = 16_000;
 const WS_BACKOFF_FACTOR   = 2;
 
+// null means "not reported yet" and MUST render as an explicit no-data state,
+// never as 0 — a 0% battery or a level horizon is a confident lie about the
+// aircraft. Only fields that are genuinely zero at rest default to 0.
 const INITIAL_TELEMETRY = {
-  altitude: 0, speed: 0, heading: 0,
-  battery_pct: 0, battery_voltage: 0,
+  altitude: null, speed: null, heading: null,
+  battery_pct: null, battery_voltage: null,
+  roll: null, pitch: null, yaw: null, altitude_msl: null,
   mode: "UNKNOWN", armed: false,
   gps_fix_type: 0, satellites_visible: 0,
-  hdop: 0,
+  hdop: null,
   position_source: "NO_POSITION",
   lat: 0, lon: 0, timestamp: 0,
   phase: "PRE_FLIGHT",
@@ -35,25 +40,27 @@ const INITIAL_MISSION = {
   maxAltitude: 55,
   overlapPct: 30,
   coordinateSystem: "WGS-84",
+  // NMIMS Shirpur campus — mirrors backend/app/state.py. Replaced wholesale by
+  // the first WebSocket message; this only covers the pre-connect render.
   waypoints: [
-    [51.507, -0.088],
-    [51.508, -0.092],
-    [51.506, -0.096],
-    [51.504, -0.092],
-    [51.505, -0.088],
+    [21.34980, 74.87760],
+    [21.35060, 74.88180],
+    [21.34760, 74.88320],
+    [21.34600, 74.87960],
+    [21.34800, 74.87720],
   ],
-  launchPoint: [51.505, -0.09],
+  launchPoint: [21.34860, 74.87980],
   searchPolygon: [
-    [51.509, -0.085],
-    [51.509, -0.099],
-    [51.503, -0.099],
-    [51.503, -0.085],
+    [21.35140, 74.87600],
+    [21.35140, 74.88400],
+    [21.34540, 74.88400],
+    [21.34540, 74.87600],
   ],
   hazardZone: [
-    [51.507, -0.094],
-    [51.508, -0.094],
-    [51.508, -0.097],
-    [51.507, -0.097],
+    [21.34520, 74.87680],
+    [21.34620, 74.87680],
+    [21.34620, 74.88020],
+    [21.34520, 74.88020],
   ],
   stats: {
     distanceKm: 3.4,
@@ -74,6 +81,10 @@ export function TelemetryProvider({ children }) {
   const [wsRetryIn,    setWsRetryIn]    = useState(null); // seconds until next reconnect attempt
   const [telemetryStale, setTelemetryStale] = useState(false);
   const [videoSignal,  setVideoSignal]  = useState(false);
+  const [demoMode,     setDemoMode]     = useState(false);
+  const [cameraOn,     setCameraOn]     = useState(false);
+  const [preflightAcks, setPreflightAcks] = useState({});
+  const [missionStart, setMissionStart] = useState(null);   // epoch seconds
 
   // Wall-clock of last received telemetry_updated_at from backend
   const lastTelemetryRef = useRef(0);
@@ -137,6 +148,18 @@ export function TelemetryProvider({ children }) {
         if (data.video_signal !== undefined) {
           setVideoSignal(data.video_signal);
         }
+        if (data.demo_mode !== undefined) {
+          setDemoMode(data.demo_mode);
+        }
+        if (data.camera_enabled !== undefined) {
+          setCameraOn(data.camera_enabled);
+        }
+        if (data.preflight_acks !== undefined) {
+          setPreflightAcks(data.preflight_acks);
+        }
+        if (data.mission_start_time !== undefined) {
+          setMissionStart(data.mission_start_time);
+        }
       } catch (_) {}
     };
 
@@ -194,6 +217,10 @@ export function TelemetryProvider({ children }) {
         wsRetryIn,       // seconds until next WS reconnect attempt (null = not waiting)
         telemetryStale,  // true when last MAVLink update is > STALE_THRESHOLD_MS old
         videoSignal,     // true when the backend camera has an active feed
+        demoMode,        // true while the mission simulator is driving state
+        cameraOn,        // true when the operator has started the camera payload
+        preflightAcks,   // operator checklist confirmations, persisted server-side
+        missionStart,    // epoch seconds of mission start (golden-hour clock)
       }}
     >
       {children}

@@ -8,7 +8,7 @@ import StatusBar from "../components/StatusBar";
  */
 export default function RootLayout() {
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
+    <div className="h-screen flex flex-col overflow-hidden bg-[var(--surface-2)]">
       <StatusBar />
       <div className="flex-1 min-h-0 overflow-hidden">
         <Outlet />

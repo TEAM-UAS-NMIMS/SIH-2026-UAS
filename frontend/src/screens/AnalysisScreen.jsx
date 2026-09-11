@@ -1,123 +1,231 @@
 /**
- * AnalysisScreen — rendered at /analysis.
+ * AnalysisScreen — post-mission analysis, rebuilt.
  *
- * Layout:
- *   Top row  : StatsStrip (full width — GET /api/mission/stats)
- *   Body row : AnalysisMap (center, flex-1) | AnalysisToolsList (right, w-72)
+ * The map is gone from this screen: it duplicated the planner and the live
+ * screen without adding anything, and it crowded out the analysis itself. What
+ * replaced it is a stack of expanding panels, one per analysis product, so the
+ * operator opens the one they need and reads it at full width.
  *
- * TargetDetailPanel slides in over the map when a detection marker is clicked.
+ *   Coverage        the area actually swept, as a function of time, with the
+ *                   sweep algorithm's progress
+ *   Flight replay   scrub the recorded track; shows position and elapsed time
+ *   Detections      every casualty tracked, with review actions
+ *   Hazards         the event log filtered to what went wrong
+ *   Export          real JSON/CSV of the mission record
+ *   Thermal map     NOT BUILT — a worked example of what it would show
+ *   3D recon        NOT BUILT — a worked example of what it would show
  *
- * Data sources:
- *   telemetry       — from TelemetryContext (phase badge, position history)
- *   detections      — from TelemetryContext (live-updated via WS)
- *   events          — from TelemetryContext
- *   mission         — from TelemetryContext (searchPolygon, waypoints)
- *   flightPath      — built here from TelemetryContext._position_history;
- *                     since the frontend doesn't have direct access to the
- *                     backend's _position_history list, we reconstruct it
- *                     by accumulating [lat,lon] samples from telemetry
- *                     updates in a local ref.
- *
- * Do NOT touch PreFlightScreen or LiveRescueScreen.
+ * The two unbuilt products are labelled as future work and rendered as clearly
+ * marked illustrations. They are never presented as this mission's data.
  */
-import { useState, useRef, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useTelemetry } from "../context/TelemetryContext";
+import { api } from "../config";
+import Icon from "../components/Icon";
+import StatusPill from "../components/StatusPill";
+import StatsStrip from "../components/analysis/StatsStrip";
+import TargetDetailPanel from "../components/analysis/TargetDetailPanel";
+import CoveragePanel from "../components/analysis/CoveragePanel";
+import ReplayPanel from "../components/analysis/ReplayPanel";
+import ThermalPanel from "../components/analysis/ThermalPanel";
+import ReconPanel from "../components/analysis/ReconPanel";
+import DetectionsReviewPanel from "../components/analysis/DetectionsReviewPanel";
+import HazardPanel from "../components/analysis/HazardPanel";
+import ExportPanel from "../components/analysis/ExportPanel";
 
-import StatsStrip         from "../components/analysis/StatsStrip";
-import AnalysisMap        from "../components/analysis/AnalysisMap";
-import TargetDetailPanel  from "../components/analysis/TargetDetailPanel";
-import AnalysisToolsList  from "../components/analysis/AnalysisToolsList";
+/** One expanding analysis product. */
+function Accordion({ id, title, subtitle, icon, badge, open, onToggle, children }) {
+  return (
+    <section className="panel overflow-hidden shrink-0">
+      <button
+        onClick={() => onToggle(open ? null : id)}
+        aria-expanded={open}
+        className="w-full flex items-center gap-3 px-3 py-2.5 text-left"
+        style={{ borderBottom: open ? "1px solid var(--rule)" : "none" }}
+      >
+        <Icon name={icon} size={15} style={{ color: "var(--ink-2)" }} />
+        <span className="flex flex-col min-w-0 flex-1">
+          <span className="text-[12.5px] font-semibold">{title}</span>
+          {subtitle && (
+            <span className="text-[10.5px] truncate" style={{ color: "var(--ink-3)" }}>
+              {subtitle}
+            </span>
+          )}
+        </span>
+        {badge}
+        <span
+          className="shrink-0 transition-transform"
+          style={{ transform: open ? "rotate(90deg)" : "none", color: "var(--ink-3)" }}
+        >
+          <Icon name="play" size={11} />
+        </span>
+      </button>
+
+      {/* Height-animated reveal. Kept to a transform/opacity + max-height pair so
+          it stays cheap and respects prefers-reduced-motion via index.css. */}
+      <div
+        style={{
+          maxHeight: open ? 3000 : 0,
+          opacity: open ? 1 : 0,
+          overflow: "hidden",
+          transition: "max-height .32s ease, opacity .22s ease",
+        }}
+      >
+        {open && <div className="p-3">{children}</div>}
+      </div>
+    </section>
+  );
+}
 
 export default function AnalysisScreen() {
   const { telemetry, detections, events, mission } = useTelemetry();
-
-  // ── Local detection state (so review actions update the panel without
-  //    waiting for the next WS broadcast which may not arrive in ANALYSIS).
-  const [localDetections, setLocalDetections] = useState(detections);
-
-  // Keep localDetections in sync with WS updates but don't clobber pending
-  // review changes (merge by id, WS wins for non-reviewed fields).
-  useEffect(() => {
-    setLocalDetections((prev) => {
-      const prevMap = Object.fromEntries(prev.map((d) => [d.id, d]));
-      return detections.map((d) => ({ ...d, ...(prevMap[d.id] ?? {}) }));
-    });
-  }, [detections]);
-
-  // ── Flight path accumulation ─────────────────────────────────────────────
-  // Collect [lat, lon] from every telemetry tick where a valid fix exists.
-  // We deduplicate consecutive identical points to keep the list compact.
-  const pathRef = useRef([]);
-  const [flightPath, setFlightPath] = useState([]);
-  const lastPtRef = useRef(null);
-
-  useEffect(() => {
-    const { lat, lon } = telemetry;
-    if (!lat || !lon || (lat === 0 && lon === 0)) return;
-    const key = `${lat.toFixed(6)},${lon.toFixed(6)}`;
-    if (key === lastPtRef.current) return;
-    lastPtRef.current = key;
-    pathRef.current = [...pathRef.current, [lat, lon]];
-    setFlightPath(pathRef.current);
-  }, [telemetry.lat, telemetry.lon]);
-
-  // ── Selected detection for detail panel ──────────────────────────────────
+  const [open, setOpen] = useState("coverage");
   const [selectedDet, setSelectedDet] = useState(null);
 
-  function handleSelectDet(det) {
-    setSelectedDet(det);
-  }
+  // ── Real flown path, from the backend ───────────────────────────────────
+  // Previously rebuilt from whatever telemetry arrived while this screen was
+  // mounted, which meant it was empty on arrival — the operator flies the
+  // mission on the Live screen, not this one.
+  const [flightPath, setFlightPath] = useState([]);
+  const [pathError, setPathError] = useState(null);
 
-  function handleClose() {
-    setSelectedDet(null);
-  }
+  const loadPath = useCallback(async () => {
+    try {
+      const res = await fetch(api("/api/flight_path"));
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const j = await res.json();
+      setFlightPath(j.path ?? []);
+      setPathError(null);
+    } catch (err) {
+      setPathError(err.message ?? "Could not load the flight path");
+    }
+  }, []);
 
-  function handleReview(updatedDet) {
+  useEffect(() => {
+    loadPath();
+    const id = setInterval(loadPath, 5000);
+    return () => clearInterval(id);
+  }, [loadPath]);
+
+  // Local detection copy so a review feels instant; the backend is authoritative.
+  const [localDetections, setLocalDetections] = useState(detections);
+  useEffect(() => setLocalDetections(detections), [detections]);
+
+  function handleReview(updated) {
     setLocalDetections((prev) =>
-      prev.map((d) => (d.id === updatedDet.id ? { ...d, ...updatedDet } : d))
-    );
-    // Keep selected detection in sync with the reviewed state.
-    setSelectedDet((prev) =>
-      prev?.id === updatedDet.id ? { ...prev, ...updatedDet } : prev
-    );
+      prev.map((d) => (d.id === updated.id ? { ...d, ...updated } : d)));
+    setSelectedDet((prev) => (prev?.id === updated.id ? { ...prev, ...updated } : prev));
   }
 
-  const searchPolygon = mission?.searchPolygon ?? [];
+  const confirmed = localDetections.filter((d) => d.status === "confirmed").length;
+  const hazardEvents = events.filter((e) => e.severity !== "info");
 
   return (
-    <main className="h-full flex flex-col gap-3 p-3 overflow-hidden">
-      {/* ── Top: mission stats strip ── */}
-      <StatsStrip />
+    <main className="h-full flex flex-col gap-2 p-2 overflow-hidden">
+      <StatsStrip phase={telemetry.phase} />
 
-      {/* ── Body: map + tools ── */}
-      <div className="flex-1 flex gap-3 min-h-0 overflow-hidden">
-        {/* Center: map (relative so TargetDetailPanel can abs-position over it) */}
-        <div className="flex-1 min-w-0 relative flex flex-col overflow-hidden">
-          <AnalysisMap
-            detections={localDetections}
+      <div className="flex-1 min-h-0 overflow-y-auto scroll-thin flex flex-col gap-2 pr-1">
+        <Accordion
+          id="coverage" open={open === "coverage"} onToggle={setOpen}
+          icon="grid" title="Coverage"
+          subtitle="Area actually swept over time, from the recorded track"
+          badge={<StatusPill tone="nominal" label={`${flightPath.length} pts`} />}
+        >
+          <CoveragePanel
             flightPath={flightPath}
-            searchPolygon={searchPolygon}
-            onSelectDet={handleSelectDet}
+            searchPolygon={mission.searchPolygon ?? []}
+            altitude={telemetry.altitude}
+            error={pathError}
           />
+        </Accordion>
 
-          {/* Slide-in detail panel — positioned absolute inside the map column */}
-          <TargetDetailPanel
-            detection={selectedDet}
-            onClose={handleClose}
-            onReview={handleReview}
+        <Accordion
+          id="replay" open={open === "replay"} onToggle={setOpen}
+          icon="play" title="Flight Replay"
+          subtitle="Scrub the recorded track"
+          badge={<StatusPill tone={flightPath.length ? "nominal" : "absent"}
+                             label={flightPath.length ? "Ready" : "No track"} />}
+        >
+          <ReplayPanel flightPath={flightPath} detections={localDetections} />
+        </Accordion>
+
+        <Accordion
+          id="detections" open={open === "detections"} onToggle={setOpen}
+          icon="user" title="Casualties Tracked"
+          subtitle="Every distinct target found, with review actions"
+          badge={
+            <StatusPill
+              tone={localDetections.length ? "nominal" : "absent"}
+              label={`${localDetections.length} found · ${confirmed} confirmed`}
+            />
+          }
+        >
+          <DetectionsReviewPanel
+            detections={localDetections}
+            onSelect={setSelectedDet}
+            selectedId={selectedDet?.id}
           />
-        </div>
+        </Accordion>
 
-        {/* Right: analysis tools */}
-        <aside className="w-72 shrink-0 overflow-hidden flex flex-col">
-          <AnalysisToolsList
+        <Accordion
+          id="hazards" open={open === "hazards"} onToggle={setOpen}
+          icon="alert-triangle" title="Hazards & Degradations"
+          subtitle="Events that affected the mission"
+          badge={
+            <StatusPill
+              tone={hazardEvents.length ? "caution" : "nominal"}
+              label={hazardEvents.length ? `${hazardEvents.length} events` : "None"}
+            />
+          }
+        >
+          <HazardPanel events={events} />
+        </Accordion>
+
+        <Accordion
+          id="export" open={open === "export"} onToggle={setOpen}
+          icon="download" title="Export Mission Record"
+          subtitle="JSON and CSV of detections, track and events"
+        >
+          <ExportPanel
             detections={localDetections}
             flightPath={flightPath}
             events={events}
-            searchPolygon={searchPolygon}
+            mission={mission}
           />
-        </aside>
+        </Accordion>
+
+        <Accordion
+          id="thermal" open={open === "thermal"} onToggle={setOpen}
+          icon="thermometer" title="Thermal Map"
+          subtitle="Not built — worked example of the intended product"
+          badge={<StatusPill tone="caution" label="Future work" />}
+        >
+          <ThermalPanel />
+        </Accordion>
+
+        <Accordion
+          id="recon" open={open === "recon"} onToggle={setOpen}
+          icon="box" title="3D Reconstruction"
+          subtitle="Not built — worked example of the intended product"
+          badge={<StatusPill tone="caution" label="Future work" />}
+        >
+          <ReconPanel />
+        </Accordion>
       </div>
+
+      {selectedDet && (
+        <div className="absolute inset-0 z-[500] flex items-start justify-end p-4"
+             style={{ background: "rgba(17,17,17,.28)" }}
+             onClick={(e) => { if (e.target === e.currentTarget) setSelectedDet(null); }}>
+          <div className="w-[23rem] max-h-full overflow-hidden">
+            <TargetDetailPanel
+              det={selectedDet}
+              onClose={() => setSelectedDet(null)}
+              onReview={handleReview}
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }

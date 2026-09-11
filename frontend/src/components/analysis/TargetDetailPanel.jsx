@@ -17,8 +17,9 @@
  */
 import { useState } from "react";
 import Icon from "../Icon";
+import { API_BASE as API } from "../../config";
 
-const API = "http://localhost:8000";
+// API base is environment-driven; see src/config.js
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -56,11 +57,11 @@ function PriorityBadge({ priority }) {
 
 function InfoRow({ label, children }) {
   return (
-    <div className="flex items-start justify-between gap-2 py-2 border-b border-slate-100 last:border-0">
-      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0 mt-0.5">
+    <div className="flex items-start justify-between gap-2 py-2 border-b border-[var(--rule)] last:border-0">
+      <span className="text-[11px] font-semibold text-[var(--ink-3)] uppercase tracking-wider shrink-0 mt-0.5">
         {label}
       </span>
-      <div className="text-sm font-medium text-slate-700 text-right leading-snug">
+      <div className="text-sm font-medium text-black text-right leading-snug">
         {children}
       </div>
     </div>
@@ -108,14 +109,14 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
     /* Slide-in overlay: fixed right panel on top of map */
     <div
       className="absolute top-0 right-0 h-full w-80 z-[1000] flex flex-col
-                 bg-white border-l border-slate-200 shadow-xl"
+                 bg-white border-l border-[var(--rule)] shadow-xl"
       style={{ pointerEvents: "all" }}
     >
       {/* Header */}
-      <div className="px-4 pt-4 pb-3 border-b border-slate-100 flex items-start justify-between shrink-0">
+      <div className="px-4 pt-4 pb-3 border-b border-[var(--rule)] flex items-start justify-between shrink-0">
         <div>
-          <h2 className="text-sm font-bold text-slate-800 capitalize flex items-center gap-1.5">
-            <Icon name="user" size={14} className="text-slate-500" /> {det.label}
+          <h2 className="text-sm font-bold text-black capitalize flex items-center gap-1.5">
+            <Icon name="user" size={14} className="text-[var(--ink-2)]" /> {det.label}
           </h2>
           <div className="flex items-center gap-2 mt-1">
             <PriorityBadge priority={det.priority} />
@@ -124,7 +125,7 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 transition-colors leading-none"
+          className="text-[var(--ink-3)] hover:text-[var(--ink-2)] transition-colors leading-none"
           aria-label="Close panel"
         >
           <Icon name="x" size={16} />
@@ -150,19 +151,19 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
 
         {/* RGB snapshot area */}
         <div className="my-3">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">
+          <p className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest mb-1.5">
             RGB Snapshot
           </p>
           {/* Frame capture is not implemented in this build; the detection
               pipeline does not yet persist per-detection frames to disk.
               Showing a clearly labelled placeholder. */}
-          <div className="w-full rounded-md bg-slate-100 border border-slate-200
+          <div className="w-full rounded-sm bg-[var(--surface-2)] border border-[var(--rule)]
                           flex flex-col items-center justify-center gap-1.5 py-6">
-            <Icon name="camera" size={24} className="text-slate-400" />
-            <p className="text-[11px] text-slate-500 font-medium">
+            <Icon name="camera" size={24} className="text-[var(--ink-3)]" />
+            <p className="text-[11px] text-[var(--ink-2)] font-medium">
               Frame snapshot not available
             </p>
-            <p className="text-[10px] text-slate-400 text-center px-4">
+            <p className="text-[10px] text-[var(--ink-3)] text-center px-4">
               Per-detection frame capture is not implemented in this build.
             </p>
           </div>
@@ -170,7 +171,7 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
 
         {/* Notes textarea */}
         <div className="mb-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+          <label className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest block mb-1">
             Analyst Notes
           </label>
           <textarea
@@ -178,21 +179,21 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
             value={notes || det.notes || ""}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Add annotation…"
-            className="w-full rounded-md border border-slate-200 text-xs text-slate-700
+            className="w-full rounded-sm border border-[var(--rule)] text-xs text-black
                        px-2.5 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
           />
         </div>
 
         {/* Adjust priority select */}
         <div className="mb-3">
-          <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
+          <label className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest block mb-1">
             Adjust Priority
           </label>
           <div className="flex items-center gap-2">
             <select
               value={newPriority}
               onChange={(e) => setNewPriority(e.target.value)}
-              className="flex-1 rounded-md border border-slate-200 text-xs text-slate-700
+              className="flex-1 rounded-sm border border-[var(--rule)] text-xs text-black
                          px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300"
             >
               <option value="">— choose —</option>
@@ -205,8 +206,8 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
             <button
               disabled={!newPriority || sending === "adjust_priority"}
               onClick={() => callReview("adjust_priority", { priority: newPriority })}
-              className="px-3 py-1.5 rounded-md text-xs font-bold tracking-wide
-                         bg-slate-700 text-white hover:bg-slate-800
+              className="px-3 py-1.5 rounded-sm text-xs font-bold tracking-wide
+                         btn-primary
                          disabled:opacity-40 disabled:cursor-not-allowed transition-all"
             >
               {sending === "adjust_priority" ? "…" : "Apply"}
@@ -223,12 +224,12 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
       </div>
 
       {/* Pinned action buttons */}
-      <div className="px-4 pb-4 pt-3 border-t border-slate-100 flex gap-2 shrink-0">
+      <div className="px-4 pb-4 pt-3 border-t border-[var(--rule)] flex gap-2 shrink-0">
         <button
           disabled={!!sending}
           onClick={() => callReview("confirm")}
-          className="flex-1 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase
-                     bg-green-600 hover:bg-green-700 text-white
+          className="flex-1 py-2.5 rounded-sm text-xs font-bold tracking-widest uppercase
+                     btn-primary
                      disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           <span className="inline-flex items-center justify-center gap-1.5">
@@ -239,7 +240,7 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
         <button
           disabled={!!sending}
           onClick={() => callReview("reject")}
-          className="flex-1 py-2.5 rounded-lg text-xs font-bold tracking-widest uppercase
+          className="flex-1 py-2.5 rounded-sm text-xs font-bold tracking-widest uppercase
                      bg-red-100 hover:bg-red-200 text-red-700 ring-1 ring-red-200
                      disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >

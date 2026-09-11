@@ -8,14 +8,17 @@
 
 function FieldRow({ label, value, accent }) {
   return (
-    <div className="flex items-start justify-between py-2.5 border-b border-slate-100 last:border-0 gap-2">
-      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest shrink-0 mt-0.5">
+    <div className="stat-row items-start gap-3 py-2.5">
+      {/* The label may shrink; the value must never be clipped, so it keeps a
+          minimum track and wraps instead. */}
+      <span className="stat-label mt-0.5 min-w-0">
         {label}
       </span>
       <span
-        className={`text-sm font-semibold text-right leading-tight ${
-          accent ? "text-blue-600" : "text-slate-800"
+        className={`text-[13px] font-semibold text-right leading-tight min-w-0 ${
+          accent ? "text-black" : ""
         }`}
+        style={{ color: accent ? undefined : "var(--ink)" }}
       >
         {value}
       </span>
@@ -28,8 +31,8 @@ function FieldRow({ label, value, accent }) {
 function SectionHeader({ label }) {
   return (
     <div className="flex items-center gap-2 pt-3 pb-1">
-      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{label}</span>
-      <div className="flex-1 h-px bg-slate-100" />
+      <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">{label}</span>
+      <div className="flex-1 h-px bg-[var(--surface-2)]" />
     </div>
   );
 }
@@ -45,8 +48,8 @@ const PATTERN_ICON = {
 
 function PatternBadge({ pattern }) {
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-blue-50 text-blue-700 text-xs font-bold ring-1 ring-blue-200">
-      <span>{PATTERN_ICON[pattern] || "⟿"}</span>
+    <span className="pill">
+      <span aria-hidden="true">{PATTERN_ICON[pattern] || "⟿"}</span>
       {pattern}
     </span>
   );
@@ -83,11 +86,11 @@ export default function MissionSetupPanel({ mission }) {
   return (
     <div className="panel p-4 flex flex-col gap-0 h-full overflow-y-auto">
       {/* Title */}
-      <div className="pb-3 border-b border-slate-100 mb-1">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="pb-3 border-b border-[var(--rule)] mb-1">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Mission Setup
         </h2>
-        <p className="text-[11px] text-slate-400 mt-0.5">Live from mission state</p>
+        <p className="text-[11px] text-[var(--ink-3)] mt-0.5">Live from mission state</p>
       </div>
 
       <SectionHeader label="Identification" />
@@ -112,8 +115,8 @@ export default function MissionSetupPanel({ mission }) {
       {/* Edit button (static placeholder) */}
       <button
         disabled
-        className="mt-4 w-full py-2 rounded-md text-xs font-bold tracking-widest uppercase
-                   bg-slate-100 text-slate-400 ring-1 ring-slate-200 cursor-not-allowed"
+        className="mt-4 w-full py-2 rounded-sm text-xs font-bold tracking-widest uppercase
+                   bg-[var(--surface-2)] text-[var(--ink-3)] ring-1 ring-[var(--rule-strong)] cursor-not-allowed"
       >
         Edit Mission Parameters
       </button>

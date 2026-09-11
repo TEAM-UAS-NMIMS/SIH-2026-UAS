@@ -20,8 +20,8 @@ import { useState, useEffect } from "react";
 const TIER_RING = {
   URGENT: "ring-red-400 text-red-600",
   HIGH:   "ring-orange-400 text-orange-600",
-  MEDIUM: "ring-slate-400 text-slate-600",
-  LOW:    "ring-slate-300 text-slate-400",
+  MEDIUM: "ring-slate-400 text-[var(--ink-2)]",
+  LOW:    "ring-slate-300 text-[var(--ink-3)]",
 };
 
 function TierBadge({ tier }) {
@@ -80,12 +80,12 @@ function GoldenHourTimer({ generatedAt }) {
   const colorCls =
     remaining < RED_THRESHOLD   ? "text-red-600"   :
     remaining < AMBER_THRESHOLD ? "text-amber-600" :
-                                  "text-slate-700";
+                                  "text-black";
 
   const labelCls =
     remaining < RED_THRESHOLD   ? "text-red-400"   :
     remaining < AMBER_THRESHOLD ? "text-amber-400" :
-                                  "text-slate-400";
+                                  "text-[var(--ink-3)]";
 
   return (
     <div className="flex flex-col items-end gap-0.5">
@@ -95,7 +95,7 @@ function GoldenHourTimer({ generatedAt }) {
       <span className={`text-xl font-bold tabular-nums font-mono leading-none ${colorCls}`}>
         {fmtCountdown(remaining)}
       </span>
-      <span className="text-[9px] text-slate-400 font-medium">
+      <span className="text-[9px] text-[var(--ink-3)] font-medium">
         72 h SAR window · informational only
       </span>
     </div>
@@ -108,10 +108,10 @@ function MetaChip({ label, value }) {
   if (!value) return null;
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+      <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-wider">
         {label}
       </span>
-      <span className="text-xs font-semibold text-slate-700">{value}</span>
+      <span className="text-xs font-semibold text-black">{value}</span>
     </div>
   );
 }
@@ -125,7 +125,9 @@ export default function ReportHeader({ report }) {
 
   // Overall tier: highest tier with count > 0
   const TIERS = ["URGENT", "HIGH", "MEDIUM", "LOW"];
-  const overallTier = TIERS.find((t) => (summary_counts[t] ?? 0) > 0) ?? "LOW";
+  // With no detections there is no tier to report. Falling through to "LOW"
+  // would state a finding the mission did not make.
+  const overallTier = TIERS.find((t) => (summary_counts[t] ?? 0) > 0) ?? "N/A";
 
   const totalDetections = Object.values(summary_counts).reduce((a, b) => a + b, 0);
   const genDate = generated_at
@@ -139,7 +141,7 @@ export default function ReportHeader({ report }) {
         {/* Title row */}
         <div className="flex items-center gap-3">
           <TierBadge tier={overallTier} />
-          <h1 className="text-lg font-bold text-slate-800 leading-none">
+          <h1 className="text-lg font-bold text-black leading-none">
             Mission Report — {mission?.name ?? "RESCUE_01"}
           </h1>
         </div>
@@ -166,7 +168,7 @@ export default function ReportHeader({ report }) {
               </span>
             ) : null
           )}
-          <span className="text-[11px] text-slate-400 font-medium ml-1">
+          <span className="text-[11px] text-[var(--ink-3)] font-medium ml-1">
             {totalDetections} detection{totalDetections !== 1 ? "s" : ""} total
           </span>
         </div>

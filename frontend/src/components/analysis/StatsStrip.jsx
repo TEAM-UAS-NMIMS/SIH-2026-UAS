@@ -7,25 +7,26 @@
  * No props required — fully self-fetching.
  */
 import { useState, useEffect } from "react";
+import { API_BASE as API } from "../../config";
 
-const API = "http://localhost:8000";
+// API base is environment-driven; see src/config.js
 
 // ─── Stat tile ────────────────────────────────────────────────────────────────
 
 function Tile({ label, value, sub, accent }) {
   return (
     <div
-      className={`flex flex-col gap-0.5 px-4 py-2.5 border-r border-slate-100 last:border-0
-                  ${accent ? "bg-blue-50" : ""}`}
+      className={`flex flex-col gap-0.5 px-4 py-2.5 border-r border-[var(--rule)] last:border-0
+                  ${accent ? "bg-[var(--surface-2)]" : ""}`}
     >
-      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">
         {label}
       </span>
-      <span className="text-lg font-bold text-slate-800 tabular-nums leading-tight">
+      <span className="text-lg font-bold text-black tabular-nums leading-tight">
         {value}
       </span>
       {sub && (
-        <span className="text-[10px] text-slate-400 leading-tight">{sub}</span>
+        <span className="text-[10px] text-[var(--ink-3)] leading-tight">{sub}</span>
       )}
     </div>
   );
@@ -47,7 +48,7 @@ function SurvivorBreakdown({ counts }) {
         <span className="pill-green text-[9px]">{counts.low} low</span>
       )}
       {counts.high === 0 && counts.medium === 0 && counts.low === 0 && (
-        <span className="text-slate-400">None</span>
+        <span className="text-[var(--ink-3)]">None</span>
       )}
     </div>
   );
@@ -64,7 +65,7 @@ function fmtDuration(secs) {
 
 // ─── StatsStrip ───────────────────────────────────────────────────────────────
 
-export default function StatsStrip() {
+export default function StatsStrip({ phase }) {
   const [stats,   setStats]   = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
@@ -100,7 +101,7 @@ export default function StatsStrip() {
   if (loading) {
     return (
       <div className="panel px-4 py-2 flex items-center gap-2 shrink-0">
-        <span className="text-xs text-slate-400 animate-pulse">
+        <span className="text-xs text-[var(--ink-3)] animate-pulse">
           Loading mission stats…
         </span>
       </div>
@@ -115,7 +116,7 @@ export default function StatsStrip() {
         </span>
         <button
           onClick={() => { setLoading(true); setError(null); }}
-          className="text-[10px] text-blue-600 underline"
+          className="text-[10px] text-black underline"
         >
           Retry
         </button>
@@ -129,8 +130,8 @@ export default function StatsStrip() {
   return (
     <div className="panel flex items-stretch shrink-0 overflow-x-auto">
       {/* Phase badge */}
-      <div className="flex flex-col justify-center px-4 border-r border-slate-100">
-        <span className="pill-blue text-[10px]">ANALYSIS</span>
+      <div className="flex flex-col justify-center px-4 border-r border-[var(--rule)]">
+        <span className="pill">{(phase ?? "ANALYSIS").replace(/_/g, " ")}</span>
       </div>
 
       <Tile
@@ -144,11 +145,11 @@ export default function StatsStrip() {
         sub="of search polygon"
         accent={stats.area_covered_pct >= 80}
       />
-      <div className="flex flex-col gap-1 px-4 py-2.5 border-r border-slate-100">
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+      <div className="flex flex-col gap-1 px-4 py-2.5 border-r border-[var(--rule)]">
+        <span className="text-[10px] font-bold text-[var(--ink-3)] uppercase tracking-widest">
           Detections
         </span>
-        <span className="text-lg font-bold text-slate-800 tabular-nums leading-tight">
+        <span className="text-lg font-bold text-black tabular-nums leading-tight">
           {totalSurvivors}
         </span>
         <SurvivorBreakdown counts={sbp} />
@@ -180,7 +181,7 @@ export default function StatsStrip() {
               setLoading(false);
             }
           }}
-          className="text-[10px] font-bold text-slate-400 hover:text-blue-600
+          className="text-[10px] font-bold text-[var(--ink-3)] hover:text-black
                      uppercase tracking-widest transition-colors"
         >
           ↻ Refresh

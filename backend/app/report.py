@@ -16,6 +16,8 @@ proximity_score = 1 - clamp(hazard_dist_m / PROXIMITY_MAX_M, 0, 1)
                   If no hazard zone is defined → 0.0 (neutral)
 age_score       = clamp(age_seconds / AGE_MAX_S, 0, 1)
                   (older detection → higher urgency; they have waited longer)
+                  Measured from the track's first_seen, so it reflects how long
+                  the target has actually been waiting.
 
 Tier thresholds (score → tier):
   score ≥ 0.75  →  URGENT
@@ -23,13 +25,17 @@ Tier thresholds (score → tier):
   score ≥ 0.35  →  MEDIUM
   else          →  LOW
 
-Top-3 actions are generated from the top-3 URGENT/HIGH detections that have
-not been marked "rejected".
+Top-3 actions are the three highest-ranked detections that have not been
+marked "rejected" and that have a usable position fix - of any tier. A MEDIUM
+contact with coordinates is more actionable than an URGENT one without, so the
+filter is on taskability, not on tier.
 """
 
 import math
 import time
 from typing import Any, Dict, List, Optional, Tuple
+
+from app.rescue import build_rescue_plan, build_rescue_summary
 
 
 # ─── Tuning constants ─────────────────────────────────────────────────────────
@@ -97,7 +103,10 @@ def _score_detection(
     else:
         proximity_score = 0.0  # neutral — no hazard zone defined
 
-    ts = float(det.get("timestamp", now))
+    # Age runs from when the target was FIRST seen, not the latest frame.
+    # (Before detection tracking existed this reset every frame, which made the
+    # age term contribute nothing to the score.)
+    ts = float(det.get("first_seen") or det.get("timestamp") or now)
     age_s = max(0.0, now - ts)
     age_score = _clamp(age_s / AGE_MAX_S, 0.0, 1.0)
 
@@ -207,6 +216,7 @@ def generate_report(
     hazard_zone: List[List[float]],
     mission_stats: Dict[str, Any],
     mission_meta: Dict[str, Any],
+    mission_start: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Rank all detections and build the full report payload.
 
@@ -236,7 +246,7 @@ def generate_report(
         total, conf_s, prox_s, age_s_norm, hazard_dist_m = _score_detection(
             det, hazard_zone, now
         )
-        ts     = float(det.get("timestamp", now))
+        ts     = float(det.get("first_seen") or det.get("timestamp") or now)
         age_s  = max(0.0, now - ts)
         tier   = _tier(total)
         just   = _justification(det, tier, total, hazard_dist_m, age_s)
@@ -254,6 +264,10 @@ def generate_report(
             "position_source":    det.get("position_source", "UNKNOWN"),
             "uncertainty_m":      det.get("uncertainty_m"),
             "timestamp":          ts,
+            "first_seen":         det.get("first_seen"),
+            "last_seen":          det.get("last_seen"),
+            "sightings":          det.get("sightings"),
+            "notes":              det.get("notes"),
             "age_seconds":        round(age_s, 1),
             "hazard_distance_m":  round(hazard_dist_m, 1) if hazard_dist_m is not None else None,
             "justification":      just,
@@ -279,7 +293,11 @@ def generate_report(
         summary_counts[r["tier"]] = summary_counts.get(r["tier"], 0) + 1
 
     # Top-3 actions: take the 3 highest-scoring non-rejected detections
-    actionable = [r for r in ranked if r.get("status") != "rejected"][:3]
+    # Taskable = not rejected AND has a position a team can be sent to.
+    actionable = [
+        r for r in ranked
+        if r.get("status") != "rejected" and r.get("lat") is not None
+    ][:3]
     top_actions = []
     for i, r in enumerate(actionable):
         top_actions.append({
@@ -290,16 +308,28 @@ def generate_report(
             "justification": r["justification"],
         })
 
+    # Dispatch cards: what a team actually needs to reach each casualty.
+    staging = mission_meta.get("launchPoint")
+    for r in ranked:
+        r["rescue"] = build_rescue_plan(
+            r, r["rank"], staging, r.get("hazard_distance_m"), mission_start, now
+        )
+
+    rescue_summary = build_rescue_summary(ranked, mission_start, now)
+
     return {
         "generated_at":     time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
         "mission": {
-            "name":     mission_meta.get("name",     "RESCUE_01"),
-            "operator": mission_meta.get("operator", "—"),
-            "area":     mission_meta.get("area",     "—"),
-            "type":     mission_meta.get("type",     "—"),
+            "name":      mission_meta.get("name",     "RESCUE_01"),
+            "operator":  mission_meta.get("operator", "—"),
+            "area":      mission_meta.get("area",     "—"),
+            "type":      mission_meta.get("type",     "—"),
+            "staging":   staging,
         },
         "mission_stats":     mission_stats,
+        "mission_start":     mission_start,
         "summary_counts":    summary_counts,
         "ranked_detections": ranked,
         "top_actions":       top_actions,
+        "rescue_summary":    rescue_summary,
     }

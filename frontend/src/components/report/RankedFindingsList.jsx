@@ -17,8 +17,8 @@ import { useState } from "react";
 const TIER_RING = {
   URGENT: "ring-red-400 text-red-600",
   HIGH:   "ring-orange-400 text-orange-600",
-  MEDIUM: "ring-slate-400 text-slate-600",
-  LOW:    "ring-slate-300 text-slate-400",
+  MEDIUM: "ring-slate-400 text-[var(--ink-2)]",
+  LOW:    "ring-slate-300 text-[var(--ink-3)]",
 };
 
 function TierBadge({ tier }) {
@@ -64,13 +64,13 @@ function ScoreBar({ score }) {
                 "bg-slate-200";
   return (
     <div className="flex items-center gap-1.5 min-w-[70px]">
-      <div className="flex-1 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-[var(--surface-2)] overflow-hidden">
         <div
           className={`h-full rounded-full ${color} transition-all duration-500`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[10px] font-bold text-slate-500 tabular-nums w-7 text-right">
+      <span className="text-[10px] font-bold text-[var(--ink-2)] tabular-nums w-7 text-right">
         {pct}
       </span>
     </div>
@@ -100,12 +100,12 @@ function FindingRow({ item }) {
   return (
     <>
       <tr
-        className={`border-b border-slate-100 hover:bg-slate-50 transition-colors
+        className={`border-b border-[var(--rule)] hover:bg-[var(--surface-2)] transition-colors
                     ${isRejected ? "opacity-45" : ""}`}
       >
         {/* Rank */}
         <td className="px-3 py-2.5 text-center">
-          <span className="text-xs font-bold text-slate-400 tabular-nums">
+          <span className="text-xs font-bold text-[var(--ink-3)] tabular-nums">
             #{item.rank}
           </span>
         </td>
@@ -117,7 +117,7 @@ function FindingRow({ item }) {
 
         {/* Label */}
         <td className="px-2 py-2.5">
-          <span className="text-xs font-semibold text-slate-700 capitalize">
+          <span className="text-xs font-semibold text-black capitalize">
             {item.label}
           </span>
         </td>
@@ -129,7 +129,7 @@ function FindingRow({ item }) {
 
         {/* Confidence */}
         <td className="px-2 py-2.5 text-center">
-          <span className="text-xs font-bold text-slate-700 tabular-nums">{conf}</span>
+          <span className="text-xs font-bold text-black tabular-nums">{conf}</span>
         </td>
 
         {/* Priority */}
@@ -144,26 +144,26 @@ function FindingRow({ item }) {
 
         {/* Coordinates */}
         <td className="px-2 py-2.5">
-          <span className="text-[10px] font-mono text-slate-500">
+          <span className="text-[10px] font-mono text-[var(--ink-2)]">
             {lat}, {lon}
           </span>
         </td>
 
         {/* Hazard dist */}
         <td className="px-2 py-2.5 text-center">
-          <span className="text-[11px] text-slate-500 tabular-nums">{dist}</span>
+          <span className="text-[11px] text-[var(--ink-2)] tabular-nums">{dist}</span>
         </td>
 
         {/* Age */}
         <td className="px-2 py-2.5 text-center">
-          <span className="text-[11px] text-slate-500 tabular-nums">{age}</span>
+          <span className="text-[11px] text-[var(--ink-2)] tabular-nums">{age}</span>
         </td>
 
         {/* Expand justification */}
         <td className="px-3 py-2.5 text-center">
           <button
             onClick={() => setOpen((o) => !o)}
-            className="text-[10px] text-slate-400 hover:text-blue-600
+            className="text-[10px] text-[var(--ink-3)] hover:text-black
                        font-bold uppercase tracking-wide transition-colors"
           >
             {open ? "▲" : "▼"}
@@ -173,16 +173,16 @@ function FindingRow({ item }) {
 
       {/* Expanded justification row */}
       {open && (
-        <tr className="bg-slate-50 border-b border-slate-100">
+        <tr className="bg-[var(--surface-2)] border-b border-[var(--rule)]">
           <td colSpan={11} className="px-5 py-2.5">
             <div className="flex flex-col gap-1.5">
-              <p className="text-xs text-slate-700 leading-relaxed">
-                <span className="font-bold text-slate-500">Justification: </span>
+              <p className="text-xs text-black leading-relaxed">
+                <span className="font-bold text-[var(--ink-2)]">Justification: </span>
                 {item.justification}
               </p>
               {/* Score component breakdown */}
               {item.score_components && (
-                <div className="flex items-center gap-4 text-[10px] font-mono text-slate-400">
+                <div className="flex items-center gap-4 text-[10px] font-mono text-[var(--ink-3)]">
                   <span>
                     conf: {(item.score_components.confidence_score * 100).toFixed(1)}% × 0.50
                   </span>
@@ -192,7 +192,7 @@ function FindingRow({ item }) {
                   <span>
                     age: {(item.score_components.age_score * 100).toFixed(1)}% × 0.20
                   </span>
-                  <span className="font-bold text-slate-600">
+                  <span className="font-bold text-[var(--ink-2)]">
                     → {(item.score * 100).toFixed(1)} / 100
                   </span>
                 </div>
@@ -225,8 +225,8 @@ export default function RankedFindingsList({ findings = [] }) {
   return (
     <div className="panel flex flex-col overflow-hidden flex-1 min-h-0">
       {/* Header */}
-      <div className="px-4 pt-3 pb-2.5 border-b border-slate-100 shrink-0 flex items-center justify-between">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-4 pt-3 pb-2.5 border-b border-[var(--rule)] shrink-0 flex items-center justify-between">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Ranked Findings
         </h2>
         <span className="pill-slate text-[10px]">
@@ -236,19 +236,19 @@ export default function RankedFindingsList({ findings = [] }) {
 
       {/* Table */}
       {findings.length === 0 ? (
-        <p className="text-xs text-slate-400 italic px-4 py-6">
+        <p className="text-xs text-[var(--ink-3)] italic px-4 py-6">
           No detections available.
         </p>
       ) : (
         <div className="overflow-auto flex-1 min-h-0">
           <table className="w-full border-collapse text-left">
-            <thead className="sticky top-0 bg-slate-50 z-10">
+            <thead className="sticky top-0 bg-[var(--surface-2)] z-10">
               <tr>
                 {COLUMNS.map((col, i) => (
                   <th
                     key={i}
-                    className={`px-2 py-2 text-[10px] font-bold text-slate-400
-                                uppercase tracking-widest border-b border-slate-100
+                    className={`px-2 py-2 text-[10px] font-bold text-[var(--ink-3)]
+                                uppercase tracking-widest border-b border-[var(--rule)]
                                 ${col.width}`}
                   >
                     {col.label}

@@ -32,6 +32,7 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
+import MapAutoResize from "../MapAutoResize";
 
 // ─── Leaflet icon fix ─────────────────────────────────────────────────────────
 delete L.Icon.Default.prototype._getIconUrl;
@@ -43,9 +44,9 @@ L.Icon.Default.mergeOptions({
 
 // ─── Priority colours (same as MapPanel) ─────────────────────────────────────
 const PRIORITY_COLOR = {
-  high:   "#dc2626",
-  medium: "#d97706",
-  low:    "#16a34a",
+  high:   "#B0201A",
+  medium: "#8A5A00",
+  low:    "#111111",
 };
 
 const STATUS_OPACITY = {
@@ -143,7 +144,7 @@ function DetectionMarker({ det, onSelect }) {
 
 // ─── AnalysisMap ──────────────────────────────────────────────────────────────
 
-const DEFAULT_CENTER = [51.505, -0.09];
+const DEFAULT_CENTER = [21.3486, 74.8800];  // NMIMS Shirpur campus
 const DEFAULT_ZOOM   = 14;
 
 export default function AnalysisMap({
@@ -172,11 +173,11 @@ export default function AnalysisMap({
   return (
     <div className="panel overflow-hidden flex flex-col flex-1 min-h-0">
       {/* Header */}
-      <div className="px-3 pt-2.5 pb-2 flex items-center justify-between shrink-0 border-b border-slate-100">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-3 pt-2.5 pb-2 flex items-center justify-between shrink-0 border-b border-[var(--rule)]">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Analysis Map
         </h2>
-        <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono">
+        <div className="flex items-center gap-2 text-[10px] text-[var(--ink-3)] font-mono">
           <span>{detections.length} detections</span>
           <span>·</span>
           <span>{flightPath.length} path pts</span>
@@ -194,8 +195,11 @@ export default function AnalysisMap({
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+
+          {/* Keeps Leaflet's measured size in step with its flex container */}
+          <MapAutoResize />
 
           {/* Auto-fit on mount */}
           {fitPoints.length > 0 && <AutoFit points={fitPoints} />}
@@ -205,7 +209,7 @@ export default function AnalysisMap({
             <Polygon
               positions={searchPolygon}
               pathOptions={{
-                color: "#84cc16",   // lime-500
+                color: "#111111",   // lime-500
                 weight: 1.5,
                 fill: false,
                 dashArray: "4 3",
@@ -220,9 +224,9 @@ export default function AnalysisMap({
             <Polygon
               positions={corridorPoly}
               pathOptions={{
-                color:       "#3b82f6",   // blue-500
+                color:       "#9A9A9A",   // neutral corridor
                 weight:      0.5,
-                fillColor:   "#3b82f6",
+                fillColor:   "#9A9A9A",
                 fillOpacity: 0.18,
               }}
             />
@@ -232,7 +236,7 @@ export default function AnalysisMap({
           {flightPath.length >= 2 && (
             <Polyline
               positions={flightPath}
-              pathOptions={{ color: "#2563eb", weight: 2, opacity: 0.8 }}
+              pathOptions={{ color: "#111111", weight: 2, opacity: 0.8 }}
             />
           )}
 
@@ -244,13 +248,13 @@ export default function AnalysisMap({
       </div>
 
       {/* Legend */}
-      <div className="px-3 py-1.5 border-t border-slate-100 bg-slate-50 flex items-center gap-4 shrink-0">
-        <LegendLine color="#2563eb" label="Flight path" />
-        <LegendFill  color="#3b82f6" label="Approx. coverage corridor" />
-        <LegendLine color="#84cc16" label="Search polygon" dashed />
-        <LegendDot  color="#dc2626" label="High priority" />
-        <LegendDot  color="#d97706" label="Medium priority" />
-        <LegendDot  color="#16a34a" label="Low priority" />
+      <div className="px-3 py-1.5 border-t border-[var(--rule)] bg-[var(--surface-2)] flex items-center gap-4 shrink-0">
+        <LegendLine color="#111111" label="Flight path" />
+        <LegendFill  color="#9A9A9A" label="Approx. coverage corridor" />
+        <LegendLine color="#111111" label="Search polygon" dashed />
+        <LegendDot  color="#B0201A" label="High priority" />
+        <LegendDot  color="#8A5A00" label="Medium priority" />
+        <LegendDot  color="#111111" label="Low priority" />
       </div>
     </div>
   );
@@ -268,7 +272,7 @@ function LegendLine({ color, label, dashed }) {
           strokeDasharray={dashed ? "4 2" : undefined}
         />
       </svg>
-      <span className="text-[10px] text-slate-400 font-medium">{label}</span>
+      <span className="text-[10px] text-[var(--ink-3)] font-medium">{label}</span>
     </div>
   );
 }
@@ -283,7 +287,7 @@ function LegendFill({ color, label }) {
           border: `1px solid ${color}`,
         }}
       />
-      <span className="text-[10px] text-slate-400 font-medium">{label}</span>
+      <span className="text-[10px] text-[var(--ink-3)] font-medium">{label}</span>
     </div>
   );
 }
@@ -296,7 +300,7 @@ function LegendDot({ color, label }) {
         background: color, border: "1.5px solid white",
         boxShadow: `0 0 0 1px ${color}`,
       }} />
-      <span className="text-[10px] text-slate-400 font-medium">{label}</span>
+      <span className="text-[10px] text-[var(--ink-3)] font-medium">{label}</span>
     </div>
   );
 }

@@ -17,20 +17,21 @@
  */
 import { useState } from "react";
 import Icon from "../Icon";
+import { API_BASE as API } from "../../config";
 
-const API = "http://localhost:8000";
+// API base is environment-driven; see src/config.js
 
 // ─── Toast ─────────────────────────────────────────────────────────────────────
 
 function Toast({ message, type }) {
   if (!message) return null;
   const color =
-    type === "success" ? "bg-green-50 text-green-700 ring-green-200" :
-    type === "stub"    ? "bg-slate-50  text-slate-600  ring-slate-200" :
+    type === "success" ? "bg-[var(--surface-2)] text-black ring-[var(--rule-strong)]" :
+    type === "stub"    ? "bg-[var(--surface-2)]  text-[var(--ink-2)]  ring-[var(--rule-strong)]" :
                         "bg-red-50   text-red-700   ring-red-200";
   return (
     <div
-      className={`mt-3 px-3 py-2 rounded-md ring-1 text-xs font-medium
+      className={`mt-3 px-3 py-2 rounded-sm ring-1 text-xs font-medium
                   leading-snug transition-all ${color}`}
     >
       {message}
@@ -89,12 +90,12 @@ function ExportButton({ label, icon, onClick, loading, disabled }) {
     <button
       onClick={onClick}
       disabled={loading || disabled}
-      className={`flex items-center gap-2 w-full px-3.5 py-2.5 rounded-lg
+      className={`flex items-center gap-2 w-full px-3.5 py-2.5 rounded-sm
                   text-xs font-bold tracking-wide uppercase text-left
                   border transition-all duration-150
                   ${loading || disabled
-                    ? "border-slate-200 bg-slate-50 text-slate-300 cursor-not-allowed"
-                    : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
+                    ? "border-[var(--rule)] bg-[var(--surface-2)] text-[var(--ink-3)] cursor-not-allowed"
+                    : "border-[var(--rule)] bg-white text-black hover:bg-[var(--surface-2)] hover:border-slate-300"
                   }`}
     >
       <Icon name={icon} size={15} />
@@ -143,8 +144,8 @@ export default function ExportPanel({ report }) {
   return (
     <div className="panel flex flex-col overflow-hidden shrink-0">
       {/* Header */}
-      <div className="px-4 pt-3 pb-2.5 border-b border-slate-100">
-        <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+      <div className="px-4 pt-3 pb-2.5 border-b border-[var(--rule)]">
+        <h2 className="text-xs font-bold text-[var(--ink-2)] uppercase tracking-widest">
           Export
         </h2>
       </div>
@@ -177,7 +178,7 @@ export default function ExportPanel({ report }) {
         />
 
         {/* Honest disclaimer for stubs */}
-        <p className="text-[9px] text-slate-300 font-medium mt-1 leading-snug">
+        <p className="text-[9px] text-[var(--ink-3)] font-medium mt-1 leading-snug">
           CSV is fully functional today. PDF, GeoJSON, and KML are not yet
           implemented — clicking them shows an honest notice, no file is created.
         </p>
