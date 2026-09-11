@@ -1,0 +1,125 @@
+{
+  "earthquake": {
+    "video_name": "earthquake",
+    "video_file": "earthquake.mp4",
+    "resolution": "1920x1080",
+    "width": 1920,
+    "height": 1080,
+    "fps": 47.95,
+    "duration_seconds": 50.72,
+    "total_frames": 2432,
+    "frames_processed": 2432,
+    "total_inference_time_seconds": 40.78,
+    "avg_inference_time_per_frame_ms": 5.71,
+    "processing_fps": 59.64,
+    "total_person_detections": 43801,
+    "avg_person_detections_per_frame": 18.01,
+    "median_person_detections_per_frame": 17.0,
+    "max_person_detections_per_frame": 48,
+    "frames_with_at_least_one_person": 2423,
+    "detection_coverage_pct": 99.63,
+    "confidence_statistics": {
+      "mean": 0.4463,
+      "median": 0.4196,
+      "min": 0.25,
+      "max": 0.8425
+    },
+    "confidence_distribution": {
+      "range_0_25_to_0_40": 20157,
+      "range_0_40_to_0_60": 15019,
+      "range_0_60_to_0_80": 8581,
+      "range_0_80_to_1_00": 44
+    },
+    "bounding_box_size_statistics_sqrt_area_px": {
+      "mean": 55.85,
+      "median": 55.34
+    },
+    "temporal_stability": {
+      "frame_to_frame_jitter_std": 2.78,
+      "flicker_transitions": 10
+    },
+    "annotated_video_path": null
+  },
+  "flood_navigation": {
+    "video_name": "flood_navigation",
+    "video_file": "flood_navigation.mp4",
+    "resolution": "2160x3840",
+    "width": 2160,
+    "height": 3840,
+    "fps": 60.0,
+    "duration_seconds": 30.87,
+    "total_frames": 1852,
+    "frames_processed": 1852,
+    "total_inference_time_seconds": 131.63,
+    "avg_inference_time_per_frame_ms": 6.59,
+    "processing_fps": 14.07,
+    "total_person_detections": 62255,
+    "avg_person_detections_per_frame": 33.615,
+    "median_person_detections_per_frame": 31.0,
+    "max_person_detections_per_frame": 78,
+    "frames_with_at_least_one_person": 1852,
+    "detection_coverage_pct": 100.0,
+    "confidence_statistics": {
+      "mean": 0.4342,
+      "median": 0.4009,
+      "min": 0.25,
+      "max": 0.814
+    },
+    "confidence_distribution": {
+      "range_0_25_to_0_40": 31004,
+      "range_0_40_to_0_60": 20678,
+      "range_0_60_to_0_80": 10565,
+      "range_0_80_to_1_00": 8
+    },
+    "bounding_box_size_statistics_sqrt_area_px": {
+      "mean": 61.29,
+      "median": 57.97
+    },
+    "temporal_stability": {
+      "frame_to_frame_jitter_std": 3.215,
+      "flicker_transitions": 0
+    },
+    "annotated_video_path": "/home/adi/workspace/hackathons/sih-26/disaster_aid_model/runs/demo_inference/d_aid_v1/flood_navigation/annotated.mp4"
+  },
+  "ruins_navigation": {
+    "video_name": "ruins_navigation",
+    "video_file": "ruins_navigation.mp4",
+    "resolution": "2160x3840",
+    "width": 2160,
+    "height": 3840,
+    "fps": 60.0,
+    "duration_seconds": 20.45,
+    "total_frames": 1227,
+    "frames_processed": 799,
+    "total_inference_time_seconds": 23.8,
+    "avg_inference_time_per_frame_ms": 6.86,
+    "processing_fps": 33.57,
+    "total_person_detections": 21137,
+    "avg_person_detections_per_frame": 26.421,
+    "median_person_detections_per_frame": 26.0,
+    "max_person_detections_per_frame": 62,
+    "frames_with_at_least_one_person": 800,
+    "detection_coverage_pct": 100.13,
+    "confidence_statistics": {
+      "mean": 0.4553,
+      "median": 0.4132,
+      "min": 0.25,
+      "max": 0.8382
+    },
+    "confidence_distribution": {
+      "range_0_25_to_0_40": 10039,
+      "range_0_40_to_0_60": 6167,
+      "range_0_60_to_0_80": 4886,
+      "range_0_80_to_1_00": 45
+    },
+    "bounding_box_size_statistics_sqrt_area_px": {
+      "mean": 74.03,
+      "median": 66.46
+    },
+    "temporal_stability": {
+      "frame_to_frame_jitter_std": 3.894,
+      "flicker_transitions": 0
+    },
+    "annotated_video_path": null
+  }
+}

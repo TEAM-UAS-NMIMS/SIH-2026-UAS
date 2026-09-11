@@ -1,0 +1,40 @@
+{
+  "experiment_name": "visdrone_person_yolov8n_baseline",
+  "model": "YOLOv8n",
+  "dataset": "VisDrone2019-DET (Person Only)",
+  "classes": [
+    "person"
+  ],
+  "train_images": 6471,
+  "val_images": 548,
+  "train_boxes": 106393,
+  "val_boxes": 13969,
+  "epochs": 100,
+  "imgsz": 640,
+  "batch": 8,
+  "seed": 42,
+  "precision": 0.6623243432800665,
+  "recall": 0.4725463526379841,
+  "map50": 0.5200879389539645,
+  "map50_95": 0.20936281467690807,
+  "training_time_seconds": 4813.39,
+  "peak_gpu_memory_mb": 3466.0,
+  "peak_torch_allocated_mb": 2006.93,
+  "peak_torch_reserved_mb": 3292.0,
+  "max_gpu_util_pct": 93.0,
+  "max_gpu_temp_c": 81.0,
+  "max_power_w": 79.7,
+  "gpu": "NVIDIA GeForce RTX 4050 Laptop GPU",
+  "software_versions": {
+    "python": "3.14.4",
+    "torch": "2.13.0+cu130",
+    "cuda": "13.0",
+    "ultralytics": "8.4.146"
+  },
+  "checkpoint_path": "/home/adi/workspace/hackathons/sih-26/disaster_aid_model/runs/baseline/visdrone_person_yolov8n/weights/best.pt",
+  "small_object_analysis": {
+    "small_box_definition": "< 32x32 px (< 1024 px^2)",
+    "val_small_box_fraction": 0.886,
+    "small_box_challenge_note": "High-altitude drone imagery exhibits severe small-target concentration; standard 640 stride-32 heads experience downsampling attenuation on <15px targets."
+  }
+}
