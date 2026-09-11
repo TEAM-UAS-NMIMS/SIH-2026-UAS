@@ -16,6 +16,7 @@
  * Calls POST /api/detections/{id}/review for confirm / reject / adjust priority.
  */
 import { useState } from "react";
+import Icon from "../Icon";
 
 const API = "http://localhost:8000";
 
@@ -113,8 +114,8 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
       {/* Header */}
       <div className="px-4 pt-4 pb-3 border-b border-slate-100 flex items-start justify-between shrink-0">
         <div>
-          <h2 className="text-sm font-bold text-slate-800 capitalize">
-            👤 {det.label}
+          <h2 className="text-sm font-bold text-slate-800 capitalize flex items-center gap-1.5">
+            <Icon name="user" size={14} className="text-slate-500" /> {det.label}
           </h2>
           <div className="flex items-center gap-2 mt-1">
             <PriorityBadge priority={det.priority} />
@@ -123,10 +124,10 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
         </div>
         <button
           onClick={onClose}
-          className="text-slate-400 hover:text-slate-600 transition-colors text-lg leading-none"
+          className="text-slate-400 hover:text-slate-600 transition-colors leading-none"
           aria-label="Close panel"
         >
-          ✕
+          <Icon name="x" size={16} />
         </button>
       </div>
 
@@ -157,7 +158,7 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
               Showing a clearly labelled placeholder. */}
           <div className="w-full rounded-md bg-slate-100 border border-slate-200
                           flex flex-col items-center justify-center gap-1.5 py-6">
-            <span className="text-2xl">📷</span>
+            <Icon name="camera" size={24} className="text-slate-400" />
             <p className="text-[11px] text-slate-500 font-medium">
               Frame snapshot not available
             </p>
@@ -230,7 +231,10 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
                      bg-green-600 hover:bg-green-700 text-white
                      disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
-          {sending === "confirm" ? "Confirming…" : "✓ Confirm"}
+          <span className="inline-flex items-center justify-center gap-1.5">
+            {sending !== "confirm" && <Icon name="check" size={13} strokeWidth={2.5} />}
+            {sending === "confirm" ? "Confirming…" : "Confirm"}
+          </span>
         </button>
         <button
           disabled={!!sending}
@@ -239,7 +243,10 @@ export default function TargetDetailPanel({ detection, onClose, onReview }) {
                      bg-red-100 hover:bg-red-200 text-red-700 ring-1 ring-red-200
                      disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
-          {sending === "reject" ? "Rejecting…" : "✕ Reject"}
+          <span className="inline-flex items-center justify-center gap-1.5">
+            {sending !== "reject" && <Icon name="x" size={13} strokeWidth={2.5} />}
+            {sending === "reject" ? "Rejecting…" : "Reject"}
+          </span>
         </button>
       </div>
     </div>

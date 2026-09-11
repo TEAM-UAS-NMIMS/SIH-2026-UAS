@@ -24,6 +24,8 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import L from "leaflet";
+import Icon from "../Icon";
+import { iconMarkup } from "../icons";
 
 // Fix Leaflet default icon paths (same pattern as LiveRescueScreen)
 delete L.Icon.Default.prototype._getIconUrl;
@@ -59,7 +61,10 @@ function polygonVertexIcon() {
 
 const homeIcon = L.divIcon({
   className: "",
-  html: `<div style="font-size:20px;line-height:1;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));">🏠</div>`,
+  html: `<div style="color:#1e293b;line-height:0;filter:drop-shadow(0 1px 3px rgba(255,255,255,.9));">${iconMarkup(
+    "home",
+    { size: 20, strokeWidth: 2.25 },
+  )}</div>`,
   iconAnchor: [10, 18],
   popupAnchor: [0, -20],
 });
@@ -146,7 +151,10 @@ export default function MissionMapEditor({ mapData, onWaypointsChange, onPolygon
               addMode ? "bg-blue-600 text-white shadow-sm" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
             }`}
           >
-            {addMode ? "✚ Adding WP…" : "✚ Add WP"}
+            <span className="inline-flex items-center gap-1">
+              <Icon name="plus" size={11} strokeWidth={3} />
+              {addMode ? "Adding WP…" : "Add WP"}
+            </span>
           </button>
           {waypoints.length > 0 && (
             <button
@@ -219,7 +227,9 @@ export default function MissionMapEditor({ mapData, onWaypointsChange, onPolygon
           <Marker position={launchPoint} icon={homeIcon}>
             <Popup>
               <div className="text-xs font-mono space-y-0.5">
-                <div className="font-bold text-slate-700">🏠 Launch Point</div>
+                <div className="font-bold text-slate-700 flex items-center gap-1">
+                  <Icon name="home" size={12} /> Launch Point
+                </div>
                 <div>Lat: {launchPoint[0].toFixed(6)}</div>
                 <div>Lon: {launchPoint[1].toFixed(6)}</div>
               </div>

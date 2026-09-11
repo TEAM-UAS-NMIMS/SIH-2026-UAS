@@ -13,6 +13,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTelemetry } from "../../context/TelemetryContext";
 import MapPanel from "./MapPanel";
+import Icon from "../Icon";
 
 // ─── Severity styling ─────────────────────────────────────────────────────────
 
@@ -125,7 +126,7 @@ function VideoFeed({ noSignal }) {
       <div className="flex-1 bg-slate-950 flex items-center justify-center min-h-0 relative">
         {showNoSignal ? (
           <div className="flex flex-col items-center gap-2 text-center px-4">
-            <span className="text-3xl">📷</span>
+            <Icon name="camera" size={30} className="text-amber-400" />
             <p className="text-amber-400 text-xs font-bold uppercase tracking-widest">
               No Signal
             </p>
@@ -135,7 +136,7 @@ function VideoFeed({ noSignal }) {
           </div>
         ) : showOffline ? (
           <div className="flex flex-col items-center gap-2 text-center px-4">
-            <span className="text-2xl">📡</span>
+            <Icon name="satellite-dish" size={24} className="text-slate-400" />
             <p className="text-slate-400 text-xs font-medium">
               Video feed unavailable
             </p>

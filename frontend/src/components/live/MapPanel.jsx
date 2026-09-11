@@ -36,6 +36,8 @@ import {
   useMap,
 } from "react-leaflet";
 import L from "leaflet";
+import Icon from "../Icon";
+import { iconMarkup } from "../icons";
 
 // ─── Leaflet icon fix (bundler path issue) ────────────────────────────────────
 // Safe to call multiple times; mergeOptions is idempotent.
@@ -60,10 +62,10 @@ function makeDroneIcon(heading) {
         width: 28px; height: 28px;
         transform: rotate(${heading}deg);
         display: flex; align-items: center; justify-content: center;
-        font-size: 22px;
-        filter: drop-shadow(0 1px 4px rgba(0,0,0,.65));
+        color: #0f172a;
+        filter: drop-shadow(0 1px 4px rgba(255,255,255,.95));
         user-select: none;
-      ">🚁</div>`,
+      ">${iconMarkup("drone", { size: 22, strokeWidth: 2.25 })}</div>`,
     iconAnchor:  [14, 14],
     popupAnchor: [0, -16],
   });
@@ -135,8 +137,8 @@ function DetectionMarker({ det }) {
       <Popup maxWidth={220}>
         <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, lineHeight: 1.6 }}>
           {/* Label + priority */}
-          <div style={{ fontWeight: 700, textTransform: "capitalize", marginBottom: 4 }}>
-            👤 {det.label}
+          <div style={{ fontWeight: 700, textTransform: "capitalize", marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 4 }}>
+            <Icon name="user" size={13} /> {det.label}
             {" "}
             <span style={{
               display: "inline-block",
@@ -250,7 +252,9 @@ export default function MapPanel({
               >
                 <Popup maxWidth={180}>
                   <div style={{ fontFamily: "Inter, sans-serif", fontSize: 12, lineHeight: 1.6 }}>
-                    <div style={{ fontWeight: 700, marginBottom: 4 }}>🚁 Drone</div>
+                    <div style={{ fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}>
+                      <Icon name="drone" size={13} /> Drone
+                    </div>
                     <div style={{ fontFamily: "monospace", fontSize: 11 }}>
                       {droneLat.toFixed(6)}, {droneLon.toFixed(6)}
                     </div>
@@ -291,7 +295,7 @@ export default function MapPanel({
 
       {/* ── Footer legend ── */}
       <div className="px-3 py-1.5 flex items-center gap-4 border-t border-slate-100 bg-slate-50 shrink-0">
-        <LegendItem emoji="🚁" label="Drone" />
+        <LegendItem icon="drone" label="Drone" />
         <LegendDot color="#dc2626" label="High priority" />
         <LegendDot color="#d97706" label="Medium priority" />
         <LegendDot color="#16a34a" label="Low priority" />
@@ -303,10 +307,10 @@ export default function MapPanel({
 
 // ─── Legend helpers ───────────────────────────────────────────────────────────
 
-function LegendItem({ emoji, label }) {
+function LegendItem({ icon, label }) {
   return (
     <div className="flex items-center gap-1.5">
-      <span className="text-sm leading-none">{emoji}</span>
+      <Icon name={icon} size={15} className="text-slate-600" />
       <span className="text-[10px] text-slate-400 font-medium">{label}</span>
     </div>
   );

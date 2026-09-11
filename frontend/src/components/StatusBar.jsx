@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { useTelemetry } from "../context/TelemetryContext";
+import Icon from "./Icon";
 
 // ─── Utility ─────────────────────────────────────────────────────────────────
 
@@ -40,7 +41,11 @@ function PositionChip({ source }) {
 
 function BatteryChip({ pct }) {
   const cls = pct > 40 ? "pill-green" : pct > 20 ? "pill-amber" : "pill-red";
-  return <span className={cls}>🔋 {Math.round(pct)}%</span>;
+  return (
+    <span className={`${cls} inline-flex items-center gap-1`}>
+      <Icon name="battery" size={13} /> {Math.round(pct)}%
+    </span>
+  );
 }
 
 // ─── Nav links ────────────────────────────────────────────────────────────────

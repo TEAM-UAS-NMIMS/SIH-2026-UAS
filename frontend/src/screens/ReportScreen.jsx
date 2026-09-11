@@ -19,6 +19,7 @@ import ReportHeader      from "../components/report/ReportHeader";
 import TopActionsList    from "../components/report/TopActionsList";
 import RankedFindingsList from "../components/report/RankedFindingsList";
 import ExportPanel       from "../components/report/ExportPanel";
+import Icon             from "../components/Icon";
 
 const API = "http://localhost:8000";
 
@@ -43,7 +44,7 @@ function ErrorState({ message, onRetry }) {
   return (
     <div className="h-full flex items-center justify-center">
       <div className="panel p-8 flex flex-col items-center gap-4 text-center max-w-sm">
-        <span className="text-3xl">⚠️</span>
+        <Icon name="alert-triangle" size={30} className="text-amber-500" />
         <div>
           <p className="text-sm font-bold text-slate-700 mb-1">
             Failed to load report

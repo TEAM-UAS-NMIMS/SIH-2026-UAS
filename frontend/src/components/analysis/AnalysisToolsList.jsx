@@ -14,6 +14,7 @@
  */
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Icon from "../Icon";
 
 // ─── Tool content panels ──────────────────────────────────────────────────────
 
@@ -21,8 +22,8 @@ import { useNavigate } from "react-router-dom";
 function ConceptOnlyPanel({ name }) {
   return (
     <div className="flex flex-col items-center gap-3 py-6 px-3 text-center">
-      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-2xl">
-        🔬
+      <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+        <Icon name="microscope" size={26} />
       </div>
       <p className="text-sm font-bold text-slate-600">{name}</p>
       <div className="rounded-lg bg-amber-50 ring-1 ring-amber-200 px-4 py-3 w-full text-left">
@@ -232,7 +233,10 @@ function ExportPanel({ detections, flightPath, events }) {
             : "bg-slate-800 text-white hover:bg-slate-700"
           }`}
       >
-        {exported ? "✓ Downloaded" : "⬇ Download JSON"}
+        <span className="inline-flex items-center justify-center gap-1.5">
+          <Icon name={exported ? "check" : "download"} size={13} strokeWidth={2.5} />
+          {exported ? "Downloaded" : "Download JSON"}
+        </span>
       </button>
     </div>
   );
@@ -241,13 +245,13 @@ function ExportPanel({ detections, flightPath, events }) {
 // ─── Tool definitions ─────────────────────────────────────────────────────────
 
 const TOOLS = [
-  { id: "3d",       label: "3D Reconstruction", icon: "🗿", conceptOnly: true  },
-  { id: "thermal",  label: "Thermal Map",        icon: "🌡", conceptOnly: true  },
-  { id: "coverage", label: "Coverage Map",       icon: "📐", conceptOnly: false },
-  { id: "hazard",   label: "Hazard Map",         icon: "⚠️", conceptOnly: false },
-  { id: "replay",   label: "Flight Replay",      icon: "▶️", conceptOnly: false },
-  { id: "export",   label: "Export",             icon: "⬇️", conceptOnly: false },
-  { id: "report",   label: "Generate Report",    icon: "📄", conceptOnly: false },
+  { id: "3d",       label: "3D Reconstruction", icon: "box",             conceptOnly: true  },
+  { id: "thermal",  label: "Thermal Map",        icon: "thermometer",     conceptOnly: true  },
+  { id: "coverage", label: "Coverage Map",       icon: "grid",            conceptOnly: false },
+  { id: "hazard",   label: "Hazard Map",         icon: "alert-triangle",  conceptOnly: false },
+  { id: "replay",   label: "Flight Replay",      icon: "play",            conceptOnly: false },
+  { id: "export",   label: "Export",             icon: "download",        conceptOnly: false },
+  { id: "report",   label: "Generate Report",    icon: "file-text",       conceptOnly: false },
 ];
 
 // ─── AnalysisToolsList ────────────────────────────────────────────────────────
@@ -294,7 +298,7 @@ export default function AnalysisToolsList({
                     : "hover:bg-slate-50"
                   }`}
               >
-                <span className="text-base leading-none">{tool.icon}</span>
+                <Icon name={tool.icon} size={15} />
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs font-semibold ${isActive ? "text-blue-700" : "text-slate-700"}`}>
                     {tool.label}

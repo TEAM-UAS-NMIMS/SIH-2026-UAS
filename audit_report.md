@@ -134,7 +134,7 @@ _Read-only audit. No code was changed._
 
 ## Summary: Prioritised Fix List
 
-### 🔴 Must Fix Before Demo (breaks the core user flow)
+### [P0] Must Fix Before Demo (breaks the core user flow)
 
 | # | Item | Why |
 |---|---|---|
@@ -143,7 +143,7 @@ _Read-only audit. No code was changed._
 | 3 | **Launch button permanently disabled (PF14)** | Static `warn` items make `warnCount` always ≥ 4. Gate should only block on dynamic `fail` items, or static warns need operator-acknowledgement toggles. |
 | 4 | **Default route `/` → `/preflight` not `/live` (G1)** | Operator lands on a blank live screen with no mission started. |
 
-### 🟡 Should Fix Before Demo
+### [P1] Should Fix Before Demo
 
 | # | Item |
 |---|---|
@@ -155,7 +155,7 @@ _Read-only audit. No code was changed._
 | 10 | StatsStrip ANALYSIS badge hardcoded, ignores actual phase (AN2) |
 | 11 | Report tier badge shows "LOW" with 0 detections — should be "N/A" (RP9) |
 
-### 🟢 Nice to Have / Lower Priority
+### [P2] Nice to Have / Lower Priority
 
 | # | Item |
 |---|---|

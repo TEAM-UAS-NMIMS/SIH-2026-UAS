@@ -16,6 +16,7 @@
  * is never misled into thinking an export occurred.
  */
 import { useState } from "react";
+import Icon from "../Icon";
 
 const API = "http://localhost:8000";
 
@@ -96,7 +97,7 @@ function ExportButton({ label, icon, onClick, loading, disabled }) {
                     : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-300"
                   }`}
     >
-      <span className="text-base leading-none">{icon}</span>
+      <Icon name={icon} size={15} />
       <span className="flex-1">{loading ? "Exporting…" : label}</span>
     </button>
   );
@@ -152,25 +153,25 @@ export default function ExportPanel({ report }) {
       <div className="px-4 py-3 flex flex-col gap-2">
         <ExportButton
           label="Download CSV"
-          icon="📊"
+          icon="bar-chart"
           onClick={handleCsv}
           disabled={noReport}
         />
         <ExportButton
           label="PDF Report"
-          icon="📄"
+          icon="file-text"
           onClick={() => handleStub("PDF")}
           disabled={noReport}
         />
         <ExportButton
           label="GeoJSON"
-          icon="🌍"
+          icon="globe"
           onClick={() => handleStub("GeoJSON")}
           disabled={noReport}
         />
         <ExportButton
           label="KML"
-          icon="🗺"
+          icon="map"
           onClick={() => handleStub("KML")}
           disabled={noReport}
         />

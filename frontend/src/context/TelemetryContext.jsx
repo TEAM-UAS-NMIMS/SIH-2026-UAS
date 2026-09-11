@@ -86,6 +86,10 @@ export function TelemetryProvider({ children }) {
   // ── Staleness check ──────────────────────────────────────────────────────
   // Runs every second; compares now vs lastTelemetryRef.
   useEffect(() => {
+    // Re-arm on every (re)mount. StrictMode runs mount -> cleanup -> remount in
+    // dev, and the cleanup below sets this to false; without re-arming it here
+    // the ref stays false forever and every WS handler bails out early.
+    mountedRef.current = true;
     staleTimerRef.current = setInterval(() => {
       if (!mountedRef.current) return;
       const age = Date.now() - lastTelemetryRef.current;
@@ -109,14 +113,14 @@ export function TelemetryProvider({ children }) {
     wsRef.current = ws;
 
     ws.onopen = () => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       setWsConnected(true);
       setWsRetryIn(null);
       delayRef.current = WS_INITIAL_DELAY_MS; // reset backoff on success
     };
 
     ws.onmessage = (e) => {
-      if (!mountedRef.current) return;
+      if (!mountedRef.current || wsRef.current !== ws) return;
       try {
         const data = JSON.parse(e.data);
         if (data.telemetry)  setTelemetry((prev) => ({ ...prev, ...data.telemetry }));
@@ -137,7 +141,9 @@ export function TelemetryProvider({ children }) {
     };
 
     ws.onclose = () => {
-      if (!mountedRef.current) return;
+      // Ignore the close of a socket we have already replaced (StrictMode
+      // remount / HMR), otherwise we would schedule a duplicate reconnect.
+      if (!mountedRef.current || wsRef.current !== ws) return;
       setWsConnected(false);
 
       // Exponential backoff countdown display
@@ -168,6 +174,7 @@ export function TelemetryProvider({ children }) {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    mountedRef.current = true;
     connect();
     return () => {
       mountedRef.current = false;

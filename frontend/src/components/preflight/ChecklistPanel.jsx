@@ -1,3 +1,5 @@
+import Icon from "../Icon";
+
 /**
  * ChecklistPanel — right column of PreFlightScreen.
  * Receives computed checklist from PreFlightScreen (built from live telemetry).
@@ -9,10 +11,10 @@
 // ─── Status icon ──────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG = {
-  pass: { icon: "✓", bg: "bg-green-100", text: "text-green-700", ring: "ring-green-200" },
-  warn: { icon: "⚠", bg: "bg-amber-100", text: "text-amber-700", ring: "ring-amber-200" },
-  fail: { icon: "✕", bg: "bg-red-100",   text: "text-red-700",   ring: "ring-red-200"   },
-  skip: { icon: "–", bg: "bg-slate-100", text: "text-slate-500", ring: "ring-slate-200" },
+  pass: { icon: "check",           bg: "bg-green-100", text: "text-green-700", ring: "ring-green-200" },
+  warn: { icon: "alert-triangle",  bg: "bg-amber-100", text: "text-amber-700", ring: "ring-amber-200" },
+  fail: { icon: "x",               bg: "bg-red-100",   text: "text-red-700",   ring: "ring-red-200"   },
+  skip: { icon: "minus",           bg: "bg-slate-100", text: "text-slate-500", ring: "ring-slate-200" },
 };
 
 function StatusIcon({ status }) {
@@ -22,7 +24,7 @@ function StatusIcon({ status }) {
       className={`inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-bold ring-1 shrink-0
                   ${cfg.bg} ${cfg.text} ${cfg.ring}`}
     >
-      {cfg.icon}
+      <Icon name={cfg.icon} size={12} strokeWidth={3} />
     </span>
   );
 }
@@ -49,12 +51,12 @@ function CheckItem({ item }) {
 // ─── Checklist section ────────────────────────────────────────────────────────
 
 const SECTION_ICON = {
-  Airframe:         "🛩",
-  Position:         "📡",
-  Communication:    "📶",
-  Power:            "🔋",
-  Payload:          "📷",
-  "Mission Safety": "🛡",
+  Airframe:         "plane",
+  Position:         "satellite-dish",
+  Communication:    "signal",
+  Power:            "battery",
+  Payload:          "camera",
+  "Mission Safety": "shield",
 };
 
 function ChecklistSection({ section }) {
@@ -67,7 +69,7 @@ function ChecklistSection({ section }) {
       {/* Section header */}
       <div className="flex items-center justify-between pt-2 pb-1">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm">{SECTION_ICON[section.name] ?? "🔲"}</span>
+          <Icon name={SECTION_ICON[section.name] ?? "square"} size={14} className="text-slate-500" />
           <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">
             {section.name}
           </span>
@@ -230,7 +232,10 @@ export default function ChecklistPanel({ checklist, onLaunch, launchError }) {
                 : "bg-slate-100 text-slate-400 ring-1 ring-slate-200 cursor-not-allowed"
             }`}
         >
-          {isLaunchReady ? "🚀 Launch Mission" : "Launch Mission — Not Ready"}
+          <span className="inline-flex items-center justify-center gap-1.5">
+            {isLaunchReady && <Icon name="rocket" size={15} />}
+            {isLaunchReady ? "Launch Mission" : "Launch Mission — Not Ready"}
+          </span>
         </button>
 
         {/* Status line under button */}

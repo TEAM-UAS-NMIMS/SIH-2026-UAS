@@ -1,3 +1,5 @@
+import Icon from "../Icon";
+
 /**
  * DetectionsPanel — right column of LiveRescueScreen.
  * Props: { detections }
@@ -80,8 +82,8 @@ function DetectionCard({ det }) {
     <div className="panel p-3 flex flex-col gap-2 transition-shadow hover:shadow-md">
       {/* Header row: label + confidence ring + priority pill */}
       <div className="flex items-center gap-2">
-        <span className="text-sm font-bold text-slate-800 capitalize flex-1 truncate">
-          👤 {det.label}
+        <span className="text-sm font-bold text-slate-800 capitalize flex-1 truncate flex items-center gap-1.5">
+          <Icon name="user" size={14} className="text-slate-500" /> {det.label}
         </span>
         <ConfRing value={conf} />
         <PriorityPill priority={det.priority} />
@@ -91,14 +93,14 @@ function DetectionCard({ det }) {
       {hasPos ? (
         <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-500
                         bg-slate-50 rounded px-2 py-1 ring-1 ring-slate-100">
-          <span className="text-slate-400 shrink-0">📍</span>
+          <Icon name="map-pin" size={12} className="text-slate-400" />
           <span className="tabular-nums">
             {det.lat.toFixed(6)}, {det.lon.toFixed(6)}
           </span>
         </div>
       ) : (
         <div className="text-[11px] text-slate-400 italic flex items-center gap-1">
-          <span>📍</span> No position estimate
+          <Icon name="map-pin" size={12} /> No position estimate
         </div>
       )}
 
@@ -151,7 +153,7 @@ export default function DetectionsPanel({ detections }) {
       <div className="flex flex-col gap-2.5 overflow-y-auto flex-1 min-h-0 pr-0.5">
         {detections.length === 0 && (
           <div className="flex flex-col items-center gap-2 mt-8 text-center">
-            <span className="text-3xl">🔍</span>
+            <Icon name="search" size={30} className="text-slate-300" />
             <p className="text-xs text-slate-400 italic">No detections yet.</p>
             <p className="text-[10px] text-slate-300">
               Awaiting YOLO inference stream…
